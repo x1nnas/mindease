@@ -25,6 +25,7 @@ export const protect = (req: AuthRequest, res: Response, next: NextFunction): vo
     req.user = decoded;
     next();
   } catch (error) {
+    console.error("Token verification error:", error);
     res.status(403).json({ message: "Invalid token" });
   }
 };
