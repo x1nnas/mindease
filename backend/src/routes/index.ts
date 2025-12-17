@@ -1,5 +1,6 @@
 import express from "express";
 import authRoutes from "./authRoutes";
+import serenityRoutes from "./serenityRoutes";
 import { protect, AuthRequest } from "../middleware/auth";
 
 const router = express.Router();
@@ -9,6 +10,7 @@ router.get("/", (req, res) => {
 });
 
 router.use("/auth", authRoutes);
+router.use("/serenity", serenityRoutes);
 
 router.get("/protected", protect, (req: AuthRequest, res) => {
   res.json({
