@@ -59,3 +59,7 @@ coverage/
 # TypeScript
 *.tsbuildinfo
 
+# Code review files
+CODE_REVIEW.md
+IMPROVEMENTS_SUMMARY.md
+

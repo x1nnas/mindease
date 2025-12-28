@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Message, Sender } from '../types/chat';
 import { sendMessage } from '../services/api';
 
@@ -7,6 +7,7 @@ export function useSerenityChat() {
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const messagesRef = useRef<Message[]>([]);
 
   useEffect(() => {
     const welcomeMessage: Message = {
@@ -16,6 +17,7 @@ export function useSerenityChat() {
       timestamp: new Date(),
     };
     setMessages([welcomeMessage]);
+    messagesRef.current = [welcomeMessage];
   }, []);
 
   const handleSend = async (text: string) => {
@@ -26,14 +28,21 @@ export function useSerenityChat() {
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    // Update state and ref together
+    setMessages((prev) => {
+      const updated = [...prev, userMessage];
+      messagesRef.current = updated;
+      return updated;
+    });
+    
     setIsTyping(true);
     setError(null);
 
     try {
       setIsLoading(true);
 
-      const conversationHistory = messages
+      // Build conversation history from ref (always up-to-date)
+      const conversationHistory = messagesRef.current
         .filter((msg) => msg.id !== 'welcome-1')
         .map((msg) => ({
           role: (msg.sender === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
@@ -42,14 +51,18 @@ export function useSerenityChat() {
 
       const response = await sendMessage(text.trim(), conversationHistory);
 
-      const botMessage: Message = {
+      const serenityMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: response.reply || "I'm here with you.",
         sender: 'serenity',
         timestamp: new Date(),
       };
 
-      setMessages((prev) => [...prev, botMessage]);
+      setMessages((prev) => {
+        const updated = [...prev, serenityMessage];
+        messagesRef.current = updated;
+        return updated;
+      });
     } catch (err: any) {
       setError(err.message || 'Something went wrong. Please try again later.');
       console.error('Chat error:', err);

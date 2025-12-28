@@ -4,7 +4,7 @@ export interface Message {
   id: string;
   text: string;
   sender: Sender;
-  timestamp: Date;
+  timestamp: Date | string; // Allow string for API responses, convert to Date when needed
 }
 
 export interface SendMessagePayload {
