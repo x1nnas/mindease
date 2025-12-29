@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Message, Sender } from '../types/chat';
+import type { Message, Sender } from '../types/chat';
 import { sendMessage } from '../services/api';
 
 export function useSerenityChat() {
@@ -63,8 +63,9 @@ export function useSerenityChat() {
         messagesRef.current = updated;
         return updated;
       });
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong. Please try again later.');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Something went wrong. Please try again later.';
+      setError(errorMessage);
       console.error('Chat error:', err);
     } finally {
       setIsTyping(false);

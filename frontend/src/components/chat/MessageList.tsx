@@ -98,7 +98,10 @@ export default function MessageList({ messages, isTyping, error }: MessageListPr
   return (
     <div
       ref={scrollContainerRef}
-      className="flex-1 overflow-y-auto px-4 py-6 bg-gray-50 relative"
+      className="flex-1 overflow-y-auto pb-8 bg-gradient-to-b from-white to-purple-50/30 relative px-4 sm:px-6"
+      style={{ 
+        paddingTop: '1.5rem'
+      }}
       role="log"
       aria-live="polite"
       aria-label="Chat messages"
@@ -116,9 +119,11 @@ export default function MessageList({ messages, isTyping, error }: MessageListPr
       )}
 
       {/* All messages */}
-      {messages.map((message) => (
-        <MessageBubble key={message.id} message={message} />
-      ))}
+      <div className="space-y-5 w-full mt-4">
+        {messages.map((message) => (
+          <MessageBubble key={message.id} message={message} />
+        ))}
+      </div>
 
       {/* Typing indicator */}
       {isTyping && <TypingIndicator />}

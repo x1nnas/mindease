@@ -45,7 +45,7 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
   };
 
   return (
-    <div className="border-t border-gray-200 bg-white px-4 py-4">
+    <div className="border-t border-purple-200/50 bg-gradient-to-r from-purple-50/50 to-indigo-50/50 backdrop-blur-sm px-6 py-4">
       <div className="flex items-end gap-3">
         {/* Textarea for multi-line input */}
         <textarea
@@ -61,7 +61,7 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
           className={`
             flex-1 resize-none rounded-2xl border border-gray-300 
             px-4 py-3 text-base
-            focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100
+            focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-100
             disabled:bg-gray-100 disabled:cursor-not-allowed
             transition-all overflow-y-auto
           `}
@@ -78,7 +78,7 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
           className={`
             p-3 rounded-full transition-all
             ${input.trim() && !disabled
-              ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md active:scale-95'
+              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg active:scale-95'
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }
           `}

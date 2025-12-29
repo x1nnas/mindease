@@ -1,2 +1,13 @@
 @import "tailwindcss/preflight";
 @import "tailwindcss";
+
+/* Ensure full height for layout */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  height: 100%;
+}

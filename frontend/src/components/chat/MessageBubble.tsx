@@ -14,18 +14,20 @@ function MessageBubble({ message }: MessageBubbleProps) {
 
   return (
     <div
-      className={`flex mb-4 ${isUser ? 'justify-end' : 'justify-start'}`}
+      className={`flex w-full ${isUser ? 'justify-end' : 'justify-start'}`}
     >
       <div
         className={`
+          ${isUser ? 'mr-0' : 'ml-0'}
           max-w-xs               /* Limits width on small screens */
-          lg:max-w-md            /* Wider on larger screens */
-          px-4 py-3              /* Padding inside bubble */
+          sm:max-w-sm            /* Slightly wider on small tablets */
+          md:max-w-md            /* Wider on medium screens */
+          lg:max-w-lg            /* Even wider on large screens */
+          px-5 py-3.5            /* Better padding inside bubble */
           rounded-2xl            /* Rounded corners */
-          shadow-sm              /* Subtle depth */
           ${isUser
-            ? 'bg-blue-600 text-white rounded-br-none'     // User: blue, no bottom-right corner (tail effect)
-            : 'bg-gray-100 text-gray-900 rounded-bl-none'   // Serenity: light gray, no bottom-left corner
+            ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-br-none shadow-md'     // User: vibrant blue gradient
+            : 'bg-gradient-to-br from-purple-50 to-indigo-50 text-gray-800 rounded-bl-none shadow-sm border border-purple-100'   // Serenity: soft purple gradient
           }
         `}
       >
@@ -35,8 +37,8 @@ function MessageBubble({ message }: MessageBubbleProps) {
 
         <p
           className={`
-            text-xs mt-1          /* Small timestamp below text */
-            ${isUser ? 'text-blue-200' : 'text-gray-500'}
+            text-xs mt-2          /* Small timestamp below text */
+            ${isUser ? 'text-blue-100 opacity-90' : 'text-purple-600 opacity-70'}
           `}
         >
           {format(
