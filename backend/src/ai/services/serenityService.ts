@@ -17,9 +17,21 @@ export interface SerenityResponse {
   reply: string;
 }
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+let openaiClient: OpenAI | null = null;
+
+function getOpenAIClient(): OpenAI {
+  if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY.trim() === '') {
+    throw new Error("OPENAI_API_KEY is not configured. Please set it in your .env file.");
+  }
+
+  if (!openaiClient) {
+    openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+
+  return openaiClient;
+}
 
 export async function getSerenityReply({
   message,
@@ -27,9 +39,7 @@ export async function getSerenityReply({
   userId,
   isGuest = false,
 }: SerenityRequest): Promise<SerenityResponse> {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error("OPENAI_API_KEY is not configured");
-  }
+  const openai = getOpenAIClient();
 
   const systemPrefixForGuest = isGuest
     ? "This user is currently using a limited guest experience. You may gently mention that more personalized support is available when they create an account, but you must still be as helpful as possible right now.\n\n"
