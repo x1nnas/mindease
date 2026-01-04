@@ -1,14 +1,10 @@
-// src/components/chat/MessageBubble.tsx
-
-// Sender type kept for future use (e.g., type guards, conditional rendering)
 import type { Message, Sender } from '@/types/chat';
 import { format } from 'date-fns';
 import { memo } from 'react';
 
 interface MessageBubbleProps {
   message: Message;
-  // Sender type available for future use in type guards or conditional logic
-  _senderType?: Sender; // Intentionally unused, kept for future development
+  _senderType?: Sender;
 }
 
 function MessageBubble({ message }: MessageBubbleProps) {

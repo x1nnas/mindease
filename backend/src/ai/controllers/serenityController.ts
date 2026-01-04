@@ -22,6 +22,25 @@ export const serenityChat = async (
       return;
     }
 
+    // Feature flag check - disable Serenity responses when needed
+    if (process.env.AI_ENABLED !== "true") {
+      const isGuest = !req.user;
+      const userId =
+        !isGuest && req.user && typeof req.user === "object"
+          ? (req.user as any).id ?? (req.user as any)._id ?? null
+          : null;
+
+      res.status(200).json({
+        message: "Serenity reply generated",
+        reply: "Serenity is currently offline while we're improving the app 🌱",
+        meta: {
+          isGuest,
+          userId,
+        },
+      });
+      return;
+    }
+
     const isGuest = !req.user;
     const userId =
       !isGuest && req.user && typeof req.user === "object"

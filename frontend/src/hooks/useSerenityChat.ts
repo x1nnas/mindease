@@ -28,7 +28,6 @@ export function useSerenityChat() {
       timestamp: new Date(),
     };
 
-    // Update state and ref together
     setMessages((prev) => {
       const updated = [...prev, userMessage];
       messagesRef.current = updated;
@@ -41,7 +40,6 @@ export function useSerenityChat() {
     try {
       setIsLoading(true);
 
-      // Build conversation history from ref (always up-to-date)
       const conversationHistory = messagesRef.current
         .filter((msg) => msg.id !== 'welcome-1')
         .map((msg) => ({

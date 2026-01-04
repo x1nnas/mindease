@@ -6,7 +6,7 @@ import { protect, AuthRequest } from "../middleware/auth";
 const router = express.Router();
 
 router.get("/", (req, res) => {
-  res.json({ message: "MindEase API running", ai: "Serenity" });
+  res.json({ message: "MindEase API running", service: "Serenity" });
 });
 
 router.use("/auth", authRoutes);

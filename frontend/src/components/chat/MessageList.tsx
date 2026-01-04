@@ -1,6 +1,6 @@
 import type { Message } from '@/types/chat';
 import MessageBubble from './MessageBubble';
-import TypingIndicator from './TypingIndicator';
+import TypingIndicator from './TypingIndicator.tsx';
 import { useEffect, useRef, useState } from 'react';
 
 interface MessageListProps {
@@ -39,34 +39,28 @@ export default function MessageList({ messages, isTyping, error }: MessageListPr
     return atBottom;
   };
 
-  // Track when we need to update indicator state (avoids setState in effect)
   const pendingIndicatorUpdateRef = useRef<boolean | null>(null);
 
-  // When new messages or typing state changes
   useEffect(() => {
     const hasNewMessages = messages.length > prevMessagesLengthRef.current;
     prevMessagesLengthRef.current = messages.length;
 
-    // Use ref to check current scroll position (avoids stale closure)
     if (isAtBottomRef.current) {
-      // Scroll immediately
       scrollToBottom();
       shouldShowIndicatorRef.current = false;
       pendingIndicatorUpdateRef.current = false;
     } else if (hasNewMessages) {
-      // Only show indicator if there are actually new messages
       shouldShowIndicatorRef.current = true;
       pendingIndicatorUpdateRef.current = true;
     }
   }, [messages.length, isTyping]);
 
-  // Separate effect to handle state updates (satisfies linter)
   useEffect(() => {
     if (pendingIndicatorUpdateRef.current !== null) {
       setShowNewMessageIndicator(pendingIndicatorUpdateRef.current);
       pendingIndicatorUpdateRef.current = null;
     }
-  }, [messages.length]); // Update when messages change
+  }, [messages.length]);
 
   // Listen to manual scrolling to update isAtBottom state
   useEffect(() => {

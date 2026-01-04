@@ -7,7 +7,6 @@ import { useSerenityChat } from '@/hooks/useSerenityChat';
 export default function ChatPage() {
   const { messages, isTyping, isLoading, error, sendMessage } = useSerenityChat();
 
-  // Show EmptyState only if there are truly no messages (before welcome message loads)
   const hasMessages = messages.length > 0;
   const isDisabled = isTyping || isLoading;
 
