@@ -40,7 +40,6 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
   return (
     <div className="border-t border-purple-200/50 bg-gradient-to-r from-purple-50/50 to-indigo-50/50 backdrop-blur-sm px-6 py-4">
       <div className="flex items-end gap-3">
-        {/* Textarea for multi-line input */}
         <textarea
           ref={textareaRef}
           value={input}
@@ -58,13 +57,12 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
             disabled:bg-gray-100 disabled:cursor-not-allowed
             transition-all overflow-y-auto
           `}
-          style={{ minHeight: '48px', maxHeight: '120px' }} // Limits growth
+          style={{ minHeight: '48px', maxHeight: '120px' }}
         />
         <span id="chat-input-hint" className="sr-only">
           Press Enter to send, Shift+Enter for new line
         </span>
 
-        {/* Send button */}
         <button
           onClick={handleSend}
           disabled={!input.trim() || disabled}
@@ -96,3 +94,4 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
     </div>
   );
 }
+

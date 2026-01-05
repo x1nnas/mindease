@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import type { Message, Sender } from '../types/chat';
-import { sendMessage } from '../services/api';
+import type { Message, Sender } from './types';
+import { sendMessage } from '../../services/api';
 
-export function useSerenityChat() {
+export function useChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -80,3 +80,4 @@ export function useSerenityChat() {
     clearError: () => setError(null),
   };
 }
+

@@ -13,6 +13,9 @@ validateEnv();
 
 const app: Application = express();
 
+// Trust proxy for accurate IP detection (important for rate limiting)
+app.set('trust proxy', 1);
+
 // CORS configuration - must be before all other middleware
 app.use(
   cors({
