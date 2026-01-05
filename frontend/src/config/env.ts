@@ -2,13 +2,20 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 function validateEnv(): void {
   const url = import.meta.env.VITE_API_URL;
+  const isProduction = import.meta.env.PROD;
   
-  if (!url) {
+  // Only warn in production - development default is fine
+  if (!url && isProduction) {
     console.warn(
       '⚠️  WARNING: VITE_API_URL not set in .env file.\n' +
       '   Using default: http://localhost:5000\n' +
       '   For production, set VITE_API_URL in frontend/.env'
     );
+    return;
+  }
+  
+  // In development, silently use default
+  if (!url) {
     return;
   }
 
@@ -20,7 +27,7 @@ function validateEnv(): void {
 
   try {
     new URL(url);
-  } catch (error) {
+  } catch {
     console.error(`❌ ERROR: Invalid VITE_API_URL format: ${url}`);
     console.error('💡 VITE_API_URL must be a valid URL (e.g., http://localhost:5000)');
     throw new Error('Invalid VITE_API_URL format');

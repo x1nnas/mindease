@@ -22,6 +22,51 @@ export interface SerenityResponse {
   };
 }
 
+export interface AuthResponse {
+  message: string;
+  token: string;
+  user: {
+    email: string;
+    id: string;
+  };
+}
+
+export const register = async (email: string, password: string): Promise<AuthResponse> => {
+  const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: 'Registration failed' }));
+    throw new Error(errorData.message || 'Registration failed. Please try again.');
+  }
+
+  return response.json();
+};
+
+export const login = async (email: string, password: string): Promise<AuthResponse> => {
+  const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: 'Login failed' }));
+    throw new Error(errorData.message || 'Invalid email or password.');
+  }
+
+  return response.json();
+};
+
 export const sendMessage = async (
   message: string,
   history?: Array<{ role: 'user' | 'assistant' | 'system'; content: string }>

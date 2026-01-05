@@ -33,12 +33,47 @@ function getOpenAIClient(): OpenAI {
   return openaiClient;
 }
 
+// Mock responses for development when AI is disabled
+const getMockResponse = (message: string): string => {
+  const lowerMessage = message.toLowerCase();
+  
+  if (lowerMessage.includes("sad") || lowerMessage.includes("depressed") || lowerMessage.includes("down")) {
+    return "That sounds really overwhelming. Want to tell me a bit more about what's been weighing on you?";
+  }
+  
+  if (lowerMessage.includes("anxious") || lowerMessage.includes("worried") || lowerMessage.includes("stress")) {
+    return "I hear that anxiety can feel really intense. What's been triggering these feelings for you?";
+  }
+  
+  if (lowerMessage.includes("angry") || lowerMessage.includes("mad") || lowerMessage.includes("frustrated")) {
+    return "It sounds like you're dealing with a lot right now. What's making you feel this way?";
+  }
+  
+  if (lowerMessage.includes("happy") || lowerMessage.includes("good") || lowerMessage.includes("great")) {
+    return "I'm glad to hear you're feeling good! What's been going well for you lately?";
+  }
+  
+  if (lowerMessage.includes("help") || lowerMessage.includes("support")) {
+    return "I'm here to listen and support you. What's on your mind today?";
+  }
+  
+  // Default response
+  return "That sounds really overwhelming. Want to tell me a bit more about what's been weighing on you?";
+};
+
 export async function getSerenityReply({
   message,
   history = [],
   userId,
   isGuest = false,
 }: SerenityRequest): Promise<SerenityResponse> {
+  // Return mock responses in development when AI is disabled
+  if (process.env.NODE_ENV !== "production" && process.env.AI_ENABLED !== "true") {
+    return {
+      reply: getMockResponse(message),
+    };
+  }
+
   const openai = getOpenAIClient();
 
   const systemPrefixForGuest = isGuest

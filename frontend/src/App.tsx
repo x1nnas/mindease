@@ -1,13 +1,46 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import ChatPage from './components/chat/ChatPage';
+import { AuthProvider } from './contexts/AuthContext';
+import { useAuth } from './contexts/useAuth';
+import AuthPage from './pages/AuthPage';
+import WelcomePage from './pages/WelcomePage';
+import ChatPage from './pages/ChatPage';
+
+function AppRoutes() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-gray-600">Loading...</div>
+      </div>
+    );
+  }
+
+  return (
+    <Routes>
+      <Route
+        path="/chat"
+        element={isAuthenticated ? <ChatPage /> : <AuthPage />}
+      />
+      <Route
+        path="/welcome"
+        element={isAuthenticated ? <WelcomePage /> : <AuthPage />}
+      />
+      <Route
+        path="/"
+        element={isAuthenticated ? <WelcomePage /> : <AuthPage />}
+      />
+    </Routes>
+  );
+}
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<ChatPage />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

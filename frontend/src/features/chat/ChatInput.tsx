@@ -1,25 +1,20 @@
-// src/components/chat/ChatInput.tsx
-
 import { useState, useRef, useEffect } from 'react';
 import type { KeyboardEvent } from 'react';
 
 interface ChatInputProps {
   onSend: (text: string) => void;
-  disabled?: boolean; // True when Serenity is typing or loading
+  disabled?: boolean;
 }
 
 export default function ChatInput({ onSend, disabled = false }: ChatInputProps) {
   const [input, setInput] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-resize textarea
   useEffect(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
-    // Reset height to auto to get the correct scrollHeight
     textarea.style.height = 'auto';
-    // Set height based on scrollHeight, but cap at maxHeight
     const newHeight = Math.min(textarea.scrollHeight, 120);
     textarea.style.height = `${newHeight}px`;
   }, [input]);
@@ -28,8 +23,7 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
     const trimmed = input.trim();
     if (trimmed && !disabled) {
       onSend(trimmed);
-      setInput(''); // Clear input after sending
-      // Reset textarea height
+      setInput('');
       if (textareaRef.current) {
         textareaRef.current.style.height = '48px';
       }
@@ -37,9 +31,8 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    // Send on Enter, but allow new line with Shift+Enter
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault(); // Prevents adding a new line
+      e.preventDefault();
       handleSend();
     }
   };
@@ -47,7 +40,6 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
   return (
     <div className="border-t border-purple-200/50 bg-gradient-to-r from-purple-50/50 to-indigo-50/50 backdrop-blur-sm px-6 py-4">
       <div className="flex items-end gap-3">
-        {/* Textarea for multi-line input */}
         <textarea
           ref={textareaRef}
           value={input}
@@ -65,13 +57,12 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
             disabled:bg-gray-100 disabled:cursor-not-allowed
             transition-all overflow-y-auto
           `}
-          style={{ minHeight: '48px', maxHeight: '120px' }} // Limits growth
+          style={{ minHeight: '48px', maxHeight: '120px' }}
         />
         <span id="chat-input-hint" className="sr-only">
           Press Enter to send, Shift+Enter for new line
         </span>
 
-        {/* Send button */}
         <button
           onClick={handleSend}
           disabled={!input.trim() || disabled}
@@ -103,3 +94,4 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
     </div>
   );
 }
+
