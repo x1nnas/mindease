@@ -29,6 +29,7 @@ export const sendMessage = async (
   const response = await fetch(`${API_BASE_URL}/api/serenity/chat`, {
     method: 'POST',
     headers: getHeaders(),
+    credentials: 'include',
     body: JSON.stringify({ message, history }),
   });
 
