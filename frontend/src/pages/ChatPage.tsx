@@ -67,17 +67,15 @@ export default function ChatPage() {
     <div className="flex flex-col h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50">
       <ChatHeader />
 
-      <main className="flex-1 flex flex-col overflow-hidden">
-        {!hasMessages ? (
-          <EmptyState />
-        ) : (
-          <ChatWindow
-            messages={messages}
-            isTyping={isTyping}
-            error={error}
-          />
-        )}
-      </main>
+      {!hasMessages ? (
+        <EmptyState />
+      ) : (
+        <ChatWindow
+          messages={messages}
+          isTyping={isTyping}
+          error={error}
+        />
+      )}
 
       <ChatInput onSend={sendMessage} disabled={isDisabled} />
     </div>

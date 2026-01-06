@@ -48,8 +48,6 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
           placeholder="Share what's on your mind..."
           rows={1}
           disabled={disabled}
-          aria-label="Type your message to Serenity"
-          aria-describedby="chat-input-hint"
           className={`
             flex-1 resize-none rounded-3xl border border-purple-200/50
             px-5 py-3.5 text-[15px] bg-white/80 backdrop-blur-sm
@@ -60,9 +58,6 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
           `}
           style={{ minHeight: '56px', maxHeight: '120px' }}
         />
-        <span id="chat-input-hint" className="sr-only">
-          Press Enter to send, Shift+Enter for new line
-        </span>
 
         <button
           onClick={handleSend}
@@ -74,7 +69,6 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }
           `}
-          aria-label="Send message"
         >
           <svg
             className="w-5 h-5"

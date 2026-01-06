@@ -82,49 +82,47 @@ export default function ChatWindow({ messages, isTyping, error }: ChatWindowProp
   }, []);
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      <div
-        ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto py-6"
-        role="log"
-        aria-live="polite"
-        aria-label="Chat messages"
-      >
-        <div className="max-w-4xl mx-auto">
-          {error && (
-            <div
-              className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm"
-              role="alert"
-              aria-live="assertive"
-            >
-              <p className="font-medium">Unable to send message</p>
-              <p>{error}</p>
-            </div>
-          )}
-
-          {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
-          ))}
-          
-          {isTyping && <TypingIndicator />}
-          
-          <div ref={messagesEndRef} aria-hidden="true" />
-        </div>
-
-        {showNewMessageIndicator && (
-          <button
-            onClick={scrollToBottom}
-            className="fixed bottom-24 left-1/2 transform -translate-x-1/2 
-                       bg-blue-600 text-white px-4 py-2 rounded-full 
-                       shadow-lg text-sm font-medium
-                       hover:bg-blue-700 active:scale-95
-                       transition-all z-10"
-            aria-label="Scroll to new message from Serenity"
+    <div 
+      ref={scrollContainerRef}
+      className="flex-1 overflow-y-auto py-6"
+      role="log"
+      aria-live="polite"
+      aria-label="Chat messages"
+    >
+      <div className="max-w-4xl mx-auto">
+        {error && (
+          <div
+            className="mb-4 mx-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm"
+            role="alert"
+            aria-live="assertive"
           >
-            New message from Serenity ↓
-          </button>
+            <p className="font-medium">Unable to send message</p>
+            <p>{error}</p>
+          </div>
         )}
+
+        {messages.map((message) => (
+          <ChatMessage key={message.id} message={message} />
+        ))}
+        
+        {isTyping && <TypingIndicator />}
+        
+        <div ref={messagesEndRef} />
       </div>
+
+      {showNewMessageIndicator && (
+        <button
+          onClick={scrollToBottom}
+          className="fixed bottom-24 left-1/2 transform -translate-x-1/2 
+                     bg-blue-600 text-white px-4 py-2 rounded-full 
+                     shadow-lg text-sm font-medium
+                     hover:bg-blue-700 active:scale-95
+                     transition-all z-10"
+          aria-label="Scroll to new message from Serenity"
+        >
+          New message from Serenity ↓
+        </button>
+      )}
     </div>
   );
 }
