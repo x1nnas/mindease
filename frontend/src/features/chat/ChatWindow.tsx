@@ -85,34 +85,31 @@ export default function ChatWindow({ messages, isTyping, error }: ChatWindowProp
     <div className="flex-1 flex flex-col overflow-hidden">
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto pb-8 bg-gradient-to-b from-white to-purple-50/30 relative px-4 sm:px-6"
-        style={{ 
-          paddingTop: '1.5rem'
-        }}
+        className="flex-1 overflow-y-auto py-6"
         role="log"
         aria-live="polite"
         aria-label="Chat messages"
       >
-        {error && (
-          <div
-            className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm"
-            role="alert"
-            aria-live="assertive"
-          >
-            <p className="font-medium">Unable to send message</p>
-            <p>{error}</p>
-          </div>
-        )}
+        <div className="max-w-4xl mx-auto">
+          {error && (
+            <div
+              className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm"
+              role="alert"
+              aria-live="assertive"
+            >
+              <p className="font-medium">Unable to send message</p>
+              <p>{error}</p>
+            </div>
+          )}
 
-        <div className="space-y-5 w-full mt-4">
           {messages.map((message) => (
             <ChatMessage key={message.id} message={message} />
           ))}
+          
+          {isTyping && <TypingIndicator />}
+          
+          <div ref={messagesEndRef} aria-hidden="true" />
         </div>
-
-        {isTyping && <TypingIndicator />}
-
-        <div ref={messagesEndRef} aria-hidden="true" />
 
         {showNewMessageIndicator && (
           <button

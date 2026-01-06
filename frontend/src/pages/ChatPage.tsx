@@ -4,20 +4,20 @@ import { useChat } from '../features/chat/useChat';
 
 function ChatHeader() {
   return (
-    <header className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-200/50 px-6 py-4 sticky top-0 z-20 shadow-sm backdrop-blur-sm">
-      <div className="flex items-center gap-4">
+    <header className="bg-white/70 backdrop-blur-md border-b border-purple-100/30 px-4 py-4 shadow-sm">
+      <div className="flex items-center gap-3 max-w-4xl mx-auto">
         <div className="relative">
-          <div className="w-12 h-12 bg-gradient-to-br from-purple-400 via-indigo-500 to-pink-500 rounded-full shadow-lg ring-2 ring-white" />
-          <span
-            className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"
-            aria-label="Online"
-          />
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center shadow-md">
+            <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 border-2 border-white rounded-full"></div>
         </div>
-
         <div className="flex-1">
-          <h1 className="text-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">Serenity</h1>
+          <h1 className="text-lg font-semibold text-gray-800">Serenity</h1>
           <p className="text-sm text-emerald-600 font-medium flex items-center gap-1">
-            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
             Online
           </p>
         </div>
@@ -64,24 +64,22 @@ export default function ChatPage() {
   const isDisabled = isTyping || isLoading;
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
-      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full bg-white/95 backdrop-blur-sm shadow-2xl rounded-t-3xl overflow-hidden">
-        <ChatHeader />
+    <div className="flex flex-col h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50">
+      <ChatHeader />
 
-        <main className="flex-1 flex flex-col overflow-hidden">
-          {!hasMessages ? (
-            <EmptyState />
-          ) : (
-            <ChatWindow
-              messages={messages}
-              isTyping={isTyping}
-              error={error}
-            />
-          )}
-        </main>
+      <main className="flex-1 flex flex-col overflow-hidden">
+        {!hasMessages ? (
+          <EmptyState />
+        ) : (
+          <ChatWindow
+            messages={messages}
+            isTyping={isTyping}
+            error={error}
+          />
+        )}
+      </main>
 
-        <ChatInput onSend={sendMessage} disabled={isDisabled} />
-      </div>
+      <ChatInput onSend={sendMessage} disabled={isDisabled} />
     </div>
   );
 }

@@ -10,46 +10,38 @@ interface ChatMessageProps {
 function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.sender === 'user';
 
+  const formatTime = (timestamp: Date | string) => {
+    const date = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;
+    return format(date, 'HH:mm');
+  };
+
   return (
-    <div
-      className={`flex w-full ${isUser ? 'justify-end' : 'justify-start'}`}
-    >
+    <div className={`flex w-full ${isUser ? 'justify-end' : 'justify-start'} px-4 mb-3`}>
       <div
         className={`
-          ${isUser ? 'mr-0' : 'ml-0'}
-          max-w-xs
-          sm:max-w-sm
-          md:max-w-md
-          lg:max-w-lg
-          px-5 py-3.5
-          rounded-2xl
+          relative max-w-[85%] sm:max-w-[75%] md:max-w-[70%] lg:max-w-[65%]
+          px-5 py-3 rounded-3xl transition-all duration-200
           ${isUser
-            ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-br-none shadow-md'
-            : 'bg-gradient-to-br from-purple-50 to-indigo-50 text-gray-800 rounded-bl-none shadow-sm border border-purple-100'
+            ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-br-md shadow-md'
+            : 'bg-white/80 backdrop-blur-sm text-gray-800 rounded-bl-md shadow-sm border border-purple-100/50'
           }
         `}
       >
-        <p className="text-sm md:text-base break-words">
+        <p 
+          className={`text-[15px] leading-relaxed ${isUser ? 'text-white' : 'text-gray-800'}`}
+          style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+        >
           {message.text}
         </p>
-
-        <p
-          className={`
-            text-xs mt-2
-            ${isUser ? 'text-blue-100 opacity-90' : 'text-purple-600 opacity-70'}
-          `}
-        >
-          {format(
-            typeof message.timestamp === 'string' 
-              ? new Date(message.timestamp) 
-              : message.timestamp,
-            'HH:mm'
-          )}
-        </p>
+        
+        <div className={`flex items-center justify-end mt-1.5 ${isUser ? 'opacity-70' : 'opacity-50'}`}>
+          <span className={`text-[11px] ${isUser ? 'text-indigo-100' : 'text-gray-500'}`}>
+            {formatTime(message.timestamp)}
+          </span>
+        </div>
       </div>
     </div>
   );
 }
 
 export default memo(ChatMessage);
-
