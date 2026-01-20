@@ -1,84 +1,400 @@
-import ChatWindow from '../features/chat/ChatWindow';
-import ChatInput from '../features/chat/ChatInput';
+import { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useChat } from '../features/chat/useChat';
 
-function ChatHeader() {
-  return (
-    <header className="bg-white/70 backdrop-blur-md border-b border-purple-100/30 px-4 py-4 shadow-sm">
-      <div className="flex items-center gap-3 max-w-4xl mx-auto">
-        <div className="relative">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center shadow-md">
-            <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 border-2 border-white rounded-full"></div>
-        </div>
-        <div className="flex-1">
-          <h1 className="text-lg font-semibold text-gray-800">Serenity</h1>
-          <p className="text-sm text-emerald-600 font-medium flex items-center gap-1">
-            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-            Online
-          </p>
-        </div>
-      </div>
-    </header>
-  );
-}
-
-function EmptyState() {
-  return (
-    <div className="flex-1 flex flex-col items-center justify-center px-8 py-16 bg-gray-50">
-      <div className="w-32 h-32 mb-8 bg-gradient-to-br from-blue-400 via-blue-500 to-purple-600 rounded-full shadow-lg" />
-
-      <h2 className="text-2xl font-semibold text-gray-800 text-center mb-4">
-        Welcome to Serenity
-      </h2>
-
-      <p className="text-lg text-gray-600 text-center max-w-md leading-relaxed">
-        I'm here to listen and support you — anytime, without judgment.
-        <br />
-        <span className="text-base text-gray-500 mt-4 block">
-          Take a deep breath and share what's on your mind when you're ready.
-        </span>
-      </p>
-
-      <div className="mt-12 text-gray-300">
-        <svg className="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={0.5}
-            d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
-          />
-        </svg>
-      </div>
-    </div>
-  );
-}
+const suggestionChips = [
+  "I've been feeling overwhelmed",
+  "I don't really know how I feel",
+  "Can you help me slow down?",
+  "I just want to talk",
+];
 
 export default function ChatPage() {
-  const { messages, isTyping, isLoading, error, sendMessage } = useChat();
+  const { messages, isTyping, isLoading, error, sendMessage, clearError } = useChat();
+  const location = useLocation();
+  const [inputValue, setInputValue] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(true);
+  const [localError, setLocalError] = useState<string | null>(null);
+  const [isEntering, setIsEntering] = useState(() => !!location.state?.fromHome);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const hasMessages = messages.length > 0;
+  useEffect(() => {
+    // Animate in if coming from HomePage
+    if (isEntering) {
+      const timer = setTimeout(() => {
+        setIsEntering(false);
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isEntering]);
+
+  // Hide suggestions after first user message
+  useEffect(() => {
+    const userMessages = messages.filter(msg => msg.sender === 'user');
+    if (userMessages.length > 0) {
+      setShowSuggestions(false);
+    }
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isTyping]);
+
+  const handleSendMessage = (content: string) => {
+    if (!content.trim()) return;
+
+    // Validate message length (2000 characters max)
+    const MAX_MESSAGE_LENGTH = 2000;
+    if (content.trim().length > MAX_MESSAGE_LENGTH) {
+      setLocalError(`Message too long. Maximum length is ${MAX_MESSAGE_LENGTH} characters.`);
+      return;
+    }
+
+    setLocalError(null);
+    setShowSuggestions(false);
+    sendMessage(content.trim());
+    setInputValue('');
+  };
+
+  const handleChipClick = (suggestion: string) => {
+    handleSendMessage(suggestion);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSendMessage(inputValue);
+  };
+
   const isDisabled = isTyping || isLoading;
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50">
-      <ChatHeader />
-
-      {!hasMessages ? (
-        <EmptyState />
-      ) : (
-        <ChatWindow
-          messages={messages}
-          isTyping={isTyping}
-          error={error}
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-[#1a241f]">
+      {/* Glow background layer - matching other pages */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        {/* Main green glow - top left */}
+        <div
+          className="absolute -top-1/4 -left-1/4 w-[600px] h-[600px] rounded-full"
+          style={{
+            background: "radial-gradient(circle, hsl(100 45% 55% / 0.4) 0%, hsl(95 40% 50% / 0.15) 40%, transparent 70%)",
+            filter: "blur(70px)",
+          }}
         />
-      )}
+        
+        {/* Secondary olive glow - bottom right */}
+        <div
+          className="absolute -bottom-1/4 -right-1/4 w-[500px] h-[500px] rounded-full"
+          style={{
+            background: "radial-gradient(circle, hsl(75 35% 45% / 0.35) 0%, hsl(80 30% 40% / 0.12) 40%, transparent 70%)",
+            filter: "blur(85px)",
+          }}
+        />
+        
+        {/* Subtle center accent */}
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full"
+          style={{
+            background: "radial-gradient(circle, hsl(90 35% 50% / 0.12) 0%, transparent 60%)",
+            filter: "blur(60px)",
+          }}
+        />
+      </div>
 
-      <ChatInput onSend={sendMessage} disabled={isDisabled} />
+      {/* Chat Container */}
+      <div className="flex-1 flex flex-col relative z-10 pb-32">
+        {/* Header */}
+        <header
+          className={`px-6 pt-8 pb-4 transition-all duration-700 ease-out ${
+            isEntering 
+              ? 'opacity-0 transform translate-y-[-20px]' 
+              : 'opacity-100 transform translate-y-0'
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center relative"
+              style={{
+                background: "linear-gradient(135deg, hsl(150 50% 50% / 0.3) 0%, hsl(150 50% 50% / 0.1) 100%)",
+                boxShadow: "0 2px 12px hsl(150 50% 50% / 0.2)",
+              }}
+            >
+              <svg 
+                className="w-5 h-5 text-green-400" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" 
+                />
+              </svg>
+              {/* Online indicator */}
+              <div
+                className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
+                style={{
+                  borderColor: "#1a241f",
+                  background: "hsl(140 70% 50%)",
+                }}
+              />
+            </div>
+            <div>
+              <h1 className="text-lg font-medium text-white/90">Serenity</h1>
+              <p className="text-xs text-white/60">Here for you</p>
+            </div>
+          </div>
+        </header>
+
+        {/* Messages Area */}
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+          {messages.map((message, index) => {
+            const isUser = message.sender === 'user';
+            const isLastMessage = index === messages.length - 1;
+            
+            return (
+              <div
+                key={message.id}
+                className={`flex ${isUser ? 'justify-end' : 'justify-start'} transition-all duration-400 ease-out ${
+                  isLastMessage
+                    ? 'opacity-100 transform translate-y-0 scale-100'
+                    : 'opacity-100'
+                }`}
+                style={{
+                  animation: isLastMessage ? 'messageSlideIn 0.4s ease-out 0.1s' : 'none',
+                  animationFillMode: 'both',
+                }}
+              >
+                <div
+                  className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+                    isUser
+                      ? 'rounded-br-md'
+                      : 'rounded-bl-md'
+                  }`}
+                  style={{
+                    background: isUser
+                      ? "linear-gradient(135deg, hsl(150 50% 50% / 0.25) 0%, hsl(150 50% 50% / 0.15) 100%)"
+                      : "linear-gradient(135deg, hsl(150 50% 50% / 0.15) 0%, hsl(150 50% 50% / 0.08) 100%)",
+                    boxShadow: isUser
+                      ? "0 2px 16px hsl(150 50% 50% / 0.15)"
+                      : "0 2px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.03)",
+                  }}
+                >
+                  {!isUser && (
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-medium text-green-400/80">Serenity</span>
+                      <span
+                        className="text-[10px] px-1.5 py-0.5 rounded-full"
+                        style={{ 
+                          background: "hsl(150 50% 50% / 0.15)", 
+                          color: "hsl(150 50% 50%)" 
+                        }}
+                      >
+                        AI
+                      </span>
+                    </div>
+                  )}
+                  <p className="text-sm leading-relaxed text-white/90">
+                    {message.text}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Typing Indicator */}
+          {isTyping && (
+            <div
+              className="flex justify-start transition-all duration-400 ease-out"
+              style={{
+                animation: 'fadeInUp 0.4s ease-out',
+                animationFillMode: 'both',
+              }}
+            >
+              <div
+                className="rounded-2xl rounded-bl-md px-4 py-3"
+                style={{
+                  background: "linear-gradient(135deg, hsl(150 50% 50% / 0.15) 0%, hsl(150 50% 50% / 0.08) 100%)",
+                  boxShadow: "0 2px 12px rgba(0, 0, 0, 0.2)",
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-green-400/80">Serenity</span>
+                  <span className="text-xs text-white/50 font-light">is thinking</span>
+                  <div className="flex gap-1">
+                    {[0, 1, 2].map((i) => (
+                      <div
+                        key={i}
+                        className="w-1.5 h-1.5 rounded-full bg-green-400/50"
+                        style={{
+                          animation: `typingDot 1.2s ease-in-out infinite`,
+                          animationDelay: `${i * 0.2}s`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {(error || localError) && (
+            <div
+              className="mx-4 p-3 rounded-xl text-sm"
+              style={{
+                background: "rgba(239, 68, 68, 0.2)",
+                border: "1px solid rgba(239, 68, 68, 0.3)",
+                color: "rgb(254, 202, 202)",
+              }}
+            >
+              <p className="font-medium">Unable to send message</p>
+              <p>{localError || error}</p>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Suggestion Chips */}
+        {showSuggestions && (
+          <div
+            className="px-4 pb-3 transition-all duration-400 ease-out"
+            style={{
+              animation: 'fadeInUp 0.4s ease-out',
+              animationFillMode: 'both',
+            }}
+          >
+            <div className="flex flex-wrap gap-2">
+              {suggestionChips.map((chip, index) => (
+                <button
+                  key={chip}
+                  onClick={() => handleChipClick(chip)}
+                  className="px-3 py-2 rounded-xl text-xs text-white/70 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  style={{
+                    background: "linear-gradient(135deg, hsl(150 50% 50% / 0.15) 0%, hsl(150 50% 50% / 0.08) 100%)",
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                    boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.03)",
+                    animation: `chipFadeIn 0.3s ease-out ${0.4 + index * 0.1}s`,
+                    animationFillMode: 'both',
+                  }}
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Input Area */}
+        <div
+          className="px-4 pb-4 transition-all duration-700 ease-out delay-300"
+          style={{
+            animation: isEntering ? 'none' : 'fadeInUp 0.6s ease-out 0.3s',
+            animationFillMode: 'both',
+          }}
+        >
+          <form onSubmit={handleSubmit} className="relative">
+            <div
+              className="flex items-center gap-2 rounded-2xl px-4 py-3 transition-all duration-300"
+              style={{
+                background: "linear-gradient(135deg, hsl(150 50% 50% / 0.15) 0%, hsl(150 50% 50% / 0.08) 100%)",
+                boxShadow: "0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.04)",
+              }}
+            >
+              <input
+                ref={inputRef}
+                type="text"
+                value={inputValue}
+                onChange={(e) => {
+                  setInputValue(e.target.value);
+                  if (localError) setLocalError(null); // Clear local error when user types
+                  if (error) clearError(); // Clear API error when user types
+                }}
+                placeholder="Type your message..."
+                disabled={isDisabled}
+                maxLength={2000}
+                className="flex-1 bg-transparent text-sm text-white/90 placeholder:text-white/50 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+              <button
+                type="submit"
+                disabled={!inputValue.trim() || isDisabled}
+                className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{
+                  background: inputValue.trim() && !isDisabled
+                    ? "linear-gradient(135deg, hsl(150 50% 50% / 0.9) 0%, hsl(150 50% 60% / 0.7) 100%)"
+                    : "linear-gradient(135deg, hsl(150 50% 50% / 0.15) 0%, hsl(150 50% 50% / 0.08) 100%)",
+                  boxShadow: inputValue.trim() && !isDisabled ? "0 2px 12px hsl(150 50% 50% / 0.3)" : "none",
+                }}
+              >
+                <svg 
+                  className="w-4 h-4 text-white" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" 
+                  />
+                </svg>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes messageSlideIn {
+          from {
+            opacity: 0;
+            transform: translateY(16px) scale(0.96);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes chipFadeIn {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        @keyframes typingDot {
+          0%, 100% {
+            opacity: 0.3;
+            transform: scale(0.8);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+      `}</style>
     </div>
   );
 }
-

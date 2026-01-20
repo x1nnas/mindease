@@ -1,58 +1,30 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/useAuth';
 
-export default function WelcomePage() {
+export default function EntryPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [isVisible, setIsVisible] = useState(true);
+  const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-      setTimeout(() => {
-        navigate('/mood-check-in');
-      }, 500); // Navigate after fade completes
-    }, 3000);
+    // Show for 2 seconds, then start exit animation
+    const exitTimer = setTimeout(() => {
+      setIsExiting(true);
+    }, 2000);
 
-    return () => clearTimeout(timer);
+    // Navigate after exit animation completes
+    const navigateTimer = setTimeout(() => {
+      navigate('/auth', { replace: true, state: { fromEntry: true } });
+    }, 2500); // Navigate after transition completes
+
+    return () => {
+      clearTimeout(exitTimer);
+      clearTimeout(navigateTimer);
+    };
   }, [navigate]);
-
-  // Get firstName from user object or localStorage
-  const getFirstName = () => {
-    if (user?.firstName) {
-      return user.firstName;
-    }
-    // Check localStorage for firstName
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        const parsed = JSON.parse(storedUser);
-        if (parsed.firstName) {
-          return parsed.firstName;
-        }
-      } catch {
-        // If parsing fails, try separate key
-        const firstName = localStorage.getItem('userFirstName');
-        if (firstName) {
-          return firstName;
-        }
-      }
-    } else {
-      const firstName = localStorage.getItem('userFirstName');
-      if (firstName) {
-        return firstName;
-      }
-    }
-    return null;
-  };
-
-  const firstName = getFirstName();
-  const welcomeText = firstName ? `Welcome, ${firstName}` : 'Welcome';
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#1a241f]">
-      {/* Glow background layer - matching EntryPage and AuthPage */}
+      {/* Organic gradient background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Main green glow - top left */}
         <div
@@ -81,23 +53,23 @@ export default function WelcomePage() {
           }}
         />
       </div>
-
-      {/* Content layer - matching EntryPage mobile sizing */}
+      
+      {/* Centered content - matching AuthPage mobile sizing */}
       <div className="relative z-10 flex min-h-screen items-center justify-center px-6 py-12">
         <main className={`flex flex-col items-center justify-center px-8 text-center transition-all duration-500 ease-in-out ${
-          isVisible 
-            ? 'opacity-100 transform translate-y-0 scale-100' 
-            : 'opacity-0 transform translate-y-[-20px] scale-95'
+          isExiting 
+            ? 'opacity-0 transform translate-y-[-20px] scale-95' 
+            : 'opacity-100 transform translate-y-0 scale-100'
         }`}>
-          {/* Primary welcome text */}
+          {/* Primary calming text */}
           <h1 
-            className="text-2xl sm:text-3xl font-light text-white/90 tracking-wide"
+            className="text-2xl sm:text-3xl md:text-4xl font-light text-white/90 tracking-wide"
             style={{ 
               animation: 'fadeUp 1.2s ease-out',
               animationFillMode: 'both',
             }}
           >
-            {welcomeText}
+            Welcome to MindEase
           </h1>
           
           {/* Subtle secondary line */}
@@ -108,7 +80,7 @@ export default function WelcomePage() {
               animationFillMode: 'both',
             }}
           >
-            take a moment to settle in
+            your safe space to breathe
           </p>
           
           {/* Gentle decorative line */}
@@ -137,3 +109,4 @@ export default function WelcomePage() {
     </div>
   );
 }
+

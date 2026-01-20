@@ -3,10 +3,10 @@ import { Request } from "express";
 import { AuthRequest } from "./auth";
 
 // Simple rate limiter to prevent runaway loops and cost overruns
-// More lenient for development, can be tightened in production
+// Budget-aware: 20 requests/minute default (reduced from 30 for cost control)
 export const serenityRateLimiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "60000", 10), // 1 minute default
-  max: parseInt(process.env.RATE_LIMIT_MAX || "30", 10), // 30 requests per minute default
+  max: parseInt(process.env.RATE_LIMIT_MAX || "20", 10), // 20 requests per minute default (cost control)
   message: {
     message: "Too many requests. Please slow down and try again in a moment.",
   },

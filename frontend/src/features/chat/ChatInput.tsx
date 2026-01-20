@@ -38,7 +38,7 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
   };
 
   return (
-    <div className="border-t border-purple-100/30 bg-white/60 backdrop-blur-md px-4 py-4">
+    <div className="border-t border-white/20 bg-white/10 backdrop-blur-xl px-4 py-4">
       <div className="flex items-end gap-2.5 max-w-4xl mx-auto">
         <textarea
           ref={textareaRef}
@@ -49,11 +49,11 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
           rows={1}
           disabled={disabled}
           className={`
-            flex-1 resize-none rounded-3xl border border-purple-200/50
-            px-5 py-3.5 text-[15px] bg-white/80 backdrop-blur-sm
-            placeholder:text-gray-400
-            focus:outline-none focus:border-purple-400 focus:ring-4 focus:ring-purple-100/50
-            disabled:bg-gray-100 disabled:cursor-not-allowed
+            flex-1 resize-none rounded-3xl border border-white/20
+            px-5 py-3.5 text-[15px] bg-white/10 backdrop-blur-sm text-white
+            placeholder:text-white/40
+            focus:outline-none focus:border-green-400 focus:ring-4 focus:ring-green-500/20
+            disabled:bg-white/5 disabled:cursor-not-allowed disabled:text-white/40
             transition-all overflow-y-auto shadow-sm
           `}
           style={{ minHeight: '56px', maxHeight: '120px' }}
@@ -65,8 +65,8 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
           className={`
             p-3.5 rounded-full transition-all flex-shrink-0
             ${input.trim() && !disabled
-              ? 'bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg shadow-purple-500/30 active:scale-95'
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              ? 'bg-gradient-to-br from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white shadow-lg shadow-green-500/30 active:scale-95'
+              : 'bg-white/10 text-white/30 cursor-not-allowed border border-white/10'
             }
           `}
         >

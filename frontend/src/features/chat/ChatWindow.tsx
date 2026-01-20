@@ -92,7 +92,7 @@ export default function ChatWindow({ messages, isTyping, error }: ChatWindowProp
       <div className="max-w-4xl mx-auto">
         {error && (
           <div
-            className="mb-4 mx-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm"
+            className="mb-4 mx-4 p-3 bg-red-500/20 backdrop-blur-sm border border-red-400/30 rounded-lg text-red-200 text-sm"
             role="alert"
             aria-live="assertive"
           >
@@ -114,9 +114,9 @@ export default function ChatWindow({ messages, isTyping, error }: ChatWindowProp
         <button
           onClick={scrollToBottom}
           className="fixed bottom-24 left-1/2 transform -translate-x-1/2 
-                     bg-blue-600 text-white px-4 py-2 rounded-full 
+                     bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 rounded-full 
                      shadow-lg text-sm font-medium
-                     hover:bg-blue-700 active:scale-95
+                     hover:from-green-600 hover:to-teal-600 active:scale-95
                      transition-all z-10"
           aria-label="Scroll to new message from Serenity"
         >

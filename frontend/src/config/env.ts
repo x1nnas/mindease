@@ -1,5 +1,8 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+// Sentry DSN (optional - app works without it)
+export const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN || '';
+
 function validateEnv(): void {
   const url = import.meta.env.VITE_API_URL;
   const isProduction = import.meta.env.PROD;

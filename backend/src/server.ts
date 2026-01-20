@@ -5,6 +5,10 @@ import path from "path";
 import router from "./routes";
 import connectDB from "./config/db";
 import { validateEnv, getEnv } from "./config/env";
+// Import models to ensure Mongoose registers them before queries
+import "./models/User";
+import "./models/MoodCheckIn";
+import "./models/JournalEntry";
 
 
 dotenv.config({ path: path.join(process.cwd(), ".env") });
@@ -17,9 +21,11 @@ const app: Application = express();
 app.set('trust proxy', 1);
 
 // CORS configuration - must be before all other middleware
+// Uses FRONTEND_URL from environment variables (defaults to localhost for development)
+const env = getEnv();
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: env.FRONTEND_URL,
     credentials: true,
   })
 );
@@ -33,7 +39,6 @@ app.get("/cors-test", (req, res) => {
 
 app.use("/api", router);
 
-const env = getEnv();
 const PORT = env.PORT;
 
 // Connect to MongoDB and start server
