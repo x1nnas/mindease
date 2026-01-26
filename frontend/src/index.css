@@ -1,20 +1,43 @@
 @import "tailwindcss";
 
-/* Ensure full height for layout */
+/* Ensure full height for layout and prevent white flashes */
 html, body {
-  height: 100%;
   margin: 0;
   padding: 0;
+  background-color: #1a241f; /* Match app background to prevent white flashes */
+  overflow: hidden; /* Prevent body scrolling on mobile */
+  position: fixed;
+  width: 100%;
+  height: 100%;
 }
 
 #root {
-  height: 100%;
-  width: 100%;
+  height: 100vh;
+  width: 100vw;
   margin: 0;
   padding: 0;
+  overflow: hidden;
+  position: relative;
 }
 
 /* Fix text wrapping in chat messages */
 * {
   box-sizing: border-box;
+}
+
+/* Prevent scrolling on mobile devices */
+@media (max-width: 768px) {
+  html, body {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  #root {
+    overflow: hidden;
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile browsers */
+  }
 }

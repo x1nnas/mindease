@@ -21,11 +21,26 @@ const app: Application = express();
 app.set('trust proxy', 1);
 
 // CORS configuration - must be before all other middleware
-// Uses FRONTEND_URL from environment variables (defaults to localhost for development)
+// Allows both dev server (5173) and preview server (4173) for local development
 const env = getEnv();
+const allowedOrigins = [
+  env.FRONTEND_URL,
+  'http://localhost:5173', // Vite dev server
+  'http://localhost:4173', // Vite preview server
+].filter(Boolean); // Remove any undefined values
+
 app.use(
   cors({
-    origin: env.FRONTEND_URL,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );

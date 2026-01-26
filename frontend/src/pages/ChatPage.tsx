@@ -1,16 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useChat } from '../features/chat/useChat';
-
-const suggestionChips = [
-  "I've been feeling overwhelmed",
-  "I don't really know how I feel",
-  "Can you help me slow down?",
-  "I just want to talk",
-];
+import { useLanguage } from '../i18n/useLanguage';
 
 export default function ChatPage() {
   const { messages, isTyping, isLoading, error, sendMessage, clearError } = useChat();
+  const { t } = useLanguage();
   const location = useLocation();
   const [inputValue, setInputValue] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(true);
@@ -18,6 +13,14 @@ export default function ChatPage() {
   const [isEntering, setIsEntering] = useState(() => !!location.state?.fromHome);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Get suggestion chips based on language
+  const suggestionChips = [
+    t('feelingOverwhelmed'),
+    t('dontKnowFeel'),
+    t('helpSlowDown'),
+    t('justWantTalk'),
+  ];
 
   useEffect(() => {
     // Animate in if coming from HomePage
@@ -51,7 +54,7 @@ export default function ChatPage() {
     // Validate message length (2000 characters max)
     const MAX_MESSAGE_LENGTH = 2000;
     if (content.trim().length > MAX_MESSAGE_LENGTH) {
-      setLocalError(`Message too long. Maximum length is ${MAX_MESSAGE_LENGTH} characters.`);
+      setLocalError(t('messageTooLong', { max: MAX_MESSAGE_LENGTH }));
       return;
     }
 
@@ -73,7 +76,7 @@ export default function ChatPage() {
   const isDisabled = isTyping || isLoading;
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden bg-[#1a241f]">
+    <div className="h-screen flex flex-col relative overflow-hidden bg-[#1a241f]">
       {/* Glow background layer - matching other pages */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Main green glow - top left */}
@@ -105,7 +108,7 @@ export default function ChatPage() {
       </div>
 
       {/* Chat Container */}
-      <div className="flex-1 flex flex-col relative z-10 pb-32">
+      <div className="flex-1 flex flex-col relative z-10 overflow-hidden">
         {/* Header */}
         <header
           className={`px-6 pt-8 pb-4 transition-all duration-700 ease-out ${
@@ -145,14 +148,14 @@ export default function ChatPage() {
               />
             </div>
             <div>
-              <h1 className="text-lg font-medium text-white/90">Serenity</h1>
-              <p className="text-xs text-white/60">Here for you</p>
+              <h1 className="text-lg font-medium text-white/90">{t('serenity')}</h1>
+              <p className="text-xs text-white/60">{t('hereForYou')}</p>
             </div>
           </div>
         </header>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+        <div className="flex-1 overflow-y-auto px-4 py-4 pb-4 space-y-4" style={{ maxHeight: 'calc(100vh - 280px)' }}>
           {messages.map((message, index) => {
             const isUser = message.sender === 'user';
             const isLastMessage = index === messages.length - 1;
@@ -187,7 +190,7 @@ export default function ChatPage() {
                 >
                   {!isUser && (
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs font-medium text-green-400/80">Serenity</span>
+                      <span className="text-xs font-medium text-green-400/80">{t('serenity')}</span>
                       <span
                         className="text-[10px] px-1.5 py-0.5 rounded-full"
                         style={{ 
@@ -255,7 +258,7 @@ export default function ChatPage() {
               <p className="font-medium">Unable to send message</p>
               <p>{localError || error}</p>
             </div>
-          )}
+        )}
 
           <div ref={messagesEndRef} />
         </div>
@@ -263,18 +266,18 @@ export default function ChatPage() {
         {/* Suggestion Chips */}
         {showSuggestions && (
           <div
-            className="px-4 pb-3 transition-all duration-400 ease-out"
+            className="px-4 pb-4 transition-all duration-400 ease-out"
             style={{
               animation: 'fadeInUp 0.4s ease-out',
               animationFillMode: 'both',
             }}
           >
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {suggestionChips.map((chip, index) => (
                 <button
                   key={chip}
                   onClick={() => handleChipClick(chip)}
-                  className="px-3 py-2 rounded-xl text-xs text-white/70 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  className="px-3 py-2 rounded-xl text-xs text-white/70 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center"
                   style={{
                     background: "linear-gradient(135deg, hsl(150 50% 50% / 0.15) 0%, hsl(150 50% 50% / 0.08) 100%)",
                     border: "1px solid rgba(255, 255, 255, 0.2)",
@@ -292,10 +295,12 @@ export default function ChatPage() {
 
         {/* Input Area */}
         <div
-          className="px-4 pb-4 transition-all duration-700 ease-out delay-300"
+          className="px-4 pt-2 transition-all duration-700 ease-out delay-300"
           style={{
             animation: isEntering ? 'none' : 'fadeInUp 0.6s ease-out 0.3s',
             animationFillMode: 'both',
+            paddingBottom: 'calc(120px + env(safe-area-inset-bottom, 0px))',
+            marginBottom: '20px',
           }}
         >
           <form onSubmit={handleSubmit} className="relative">
@@ -315,7 +320,7 @@ export default function ChatPage() {
                   if (localError) setLocalError(null); // Clear local error when user types
                   if (error) clearError(); // Clear API error when user types
                 }}
-                placeholder="Type your message..."
+                placeholder={t('shareMind')}
                 disabled={isDisabled}
                 maxLength={2000}
                 className="flex-1 bg-transparent text-sm text-white/90 placeholder:text-white/50 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"

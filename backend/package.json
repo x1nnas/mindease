@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "lsof -ti:5000 | xargs kill -9 2>/dev/null || true && ts-node-dev --respawn --transpile-only --clear --ignore-watch node_modules src/server.ts",
-    "dev:clean": "lsof -ti:5000 | xargs kill -9 2>/dev/null || true && npm run dev",
+    "dev": "lsof -ti:5050 | xargs kill -9 2>/dev/null || true && ts-node-dev --respawn --transpile-only --clear --ignore-watch node_modules src/server.ts",
+    "dev:clean": "lsof -ti:5050 | xargs kill -9 2>/dev/null || true && npm run dev",
     "build": "tsc",
     "start": "node dist/server.js"
   },

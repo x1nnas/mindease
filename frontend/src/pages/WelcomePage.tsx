@@ -1,21 +1,60 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/useAuth';
+import { hasCheckedInToday } from '../utils/moodUtils';
+import { BrandLogo } from '../components/BrandLogo';
+import { useLanguage } from '../i18n/useLanguage';
 
 export default function WelcomePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-      setTimeout(() => {
-        navigate('/mood-check-in');
-      }, 500); // Navigate after fade completes
-    }, 3000);
-
-    return () => clearTimeout(timer);
+    // Mark that we're completing welcome page (for BottomNavigation timing)
+    sessionStorage.setItem('justCompletedWelcome', 'true');
+    
+    let navigationTimer: ReturnType<typeof setTimeout> | null = null;
+    let fadeTimer: ReturnType<typeof setTimeout> | null = null;
+    
+    // Check if user has already checked in today (based on local timezone)
+    const checkMoodStatus = async () => {
+      try {
+        const hasCheckedIn = await hasCheckedInToday();
+        
+        // Wait for welcome animation, then navigate
+        navigationTimer = setTimeout(() => {
+          setIsVisible(false);
+          fadeTimer = setTimeout(() => {
+            // Only navigate to mood check-in if user hasn't checked in today
+            if (!hasCheckedIn) {
+              navigate('/mood-check-in', { state: { fromWelcome: true } });
+            } else {
+              // User already checked in today, go straight to home
+              navigate('/home', { state: { fromWelcome: true } });
+            }
+          }, 700); // Navigate after fade completes (matching transition duration)
+        }, 3000);
+      } catch (error) {
+        console.error('Error checking mood status:', error);
+        // On error, default to showing mood check-in
+        navigationTimer = setTimeout(() => {
+          setIsVisible(false);
+          fadeTimer = setTimeout(() => {
+            navigate('/mood-check-in', { state: { fromWelcome: true } });
+          }, 700);
+        }, 3000);
+      }
+    };
+    
+    checkMoodStatus();
+    
+    // Cleanup function
+    return () => {
+      if (navigationTimer) clearTimeout(navigationTimer);
+      if (fadeTimer) clearTimeout(fadeTimer);
+    };
   }, [navigate]);
 
   // Get firstName from user object or localStorage
@@ -48,10 +87,9 @@ export default function WelcomePage() {
   };
 
   const firstName = getFirstName();
-  const welcomeText = firstName ? `Welcome, ${firstName}` : 'Welcome';
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#1a241f]">
+    <div className="relative h-screen overflow-hidden bg-[#1a241f]">
       {/* Glow background layer - matching EntryPage and AuthPage */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Main green glow - top left */}
@@ -83,39 +121,38 @@ export default function WelcomePage() {
       </div>
 
       {/* Content layer - matching EntryPage mobile sizing */}
-      <div className="relative z-10 flex min-h-screen items-center justify-center px-6 py-12">
-        <main className={`flex flex-col items-center justify-center px-8 text-center transition-all duration-500 ease-in-out ${
+      <div className="relative z-10 flex h-full items-center justify-center px-4 sm:px-6 py-6 sm:py-12">
+        <main className={`flex flex-col items-center justify-center px-8 text-center transition-all duration-700 ease-out ${
           isVisible 
             ? 'opacity-100 transform translate-y-0 scale-100' 
             : 'opacity-0 transform translate-y-[-20px] scale-95'
         }`}>
-          {/* Primary welcome text */}
-          <h1 
-            className="text-2xl sm:text-3xl font-light text-white/90 tracking-wide"
+          {/* Logo with user's name */}
+          <div
             style={{ 
-              animation: 'fadeUp 1.2s ease-out',
+              animation: 'fadeUp 0.8s ease-out',
               animationFillMode: 'both',
             }}
           >
-            {welcomeText}
-          </h1>
+            <BrandLogo size="md" showText={true} customText={firstName || undefined} />
+          </div>
           
           {/* Subtle secondary line */}
           <p 
-            className="mt-4 text-base sm:text-lg text-white/60 font-light tracking-wide"
+            className="mt-8 text-base sm:text-lg text-white/60 font-light tracking-wide"
             style={{ 
-              animation: 'fadeUp 1.4s ease-out 0.4s',
+              animation: 'fadeUp 1.4s ease-out 0.5s',
               animationFillMode: 'both',
             }}
           >
-            take a moment to settle in
+            {t('takeMoment')}
           </p>
           
           {/* Gentle decorative line */}
           <div 
             className="mt-8 w-12 h-px bg-gradient-to-r from-transparent via-green-400/30 to-transparent"
             style={{ 
-              animation: 'fadeUp 1.6s ease-out 0.8s',
+              animation: 'fadeUp 1.6s ease-out 0.9s',
               animationFillMode: 'both',
             }}
           />

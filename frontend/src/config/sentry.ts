@@ -80,7 +80,7 @@ export function initSentry() {
       debug: !isProduction,
 
       // Don't send errors from localhost in production (development is fine)
-      beforeSend(event, hint) {
+      beforeSend(event) {
         // Log in development to debug
         if (!isProduction) {
           console.log('🔍 Sentry beforeSend:', {
@@ -95,12 +95,6 @@ export function initSentry() {
           return null;
         }
         return event;
-      },
-
-      // Handle transport errors (e.g., ad blockers blocking Sentry)
-      transportOptions: {
-        // Retry failed requests
-        maxRetries: 2,
       },
     });
 

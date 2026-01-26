@@ -4,8 +4,8 @@
 
 ### `VITE_API_URL`
 - **Description**: Backend API URL
-- **Default**: `http://localhost:5000`
-- **Example**: `VITE_API_URL=http://localhost:5000`
+- **Default**: `http://localhost:5050`
+- **Example**: `VITE_API_URL=http://localhost:5050`
 
 ## Optional Variables
 
@@ -35,7 +35,7 @@
 
 ```env
 # API Configuration
-VITE_API_URL=http://localhost:5000
+VITE_API_URL=http://localhost:5050
 
 # Sentry Error Tracking (Optional)
 VITE_SENTRY_DSN=https://your-dsn-here@o....ingest.sentry.io/...

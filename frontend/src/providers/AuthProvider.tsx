@@ -35,16 +35,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Token is valid - set auth state
       if (isTokenValid(storedToken)) {
-        setToken(storedToken);
-        try {
-          const parsedUser = JSON.parse(storedUser);
-          // If firstName is stored separately, merge it
-          const firstName = localStorage.getItem('userFirstName');
-          if (firstName && !parsedUser.firstName) {
-            parsedUser.firstName = firstName;
-          }
-          setUser(parsedUser);
-        } catch {
+      setToken(storedToken);
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        // If firstName is stored separately, merge it
+        const firstName = localStorage.getItem('userFirstName');
+        if (firstName && !parsedUser.firstName) {
+          parsedUser.firstName = firstName;
+        }
+        setUser(parsedUser);
+      } catch {
           // Invalid user data - clear everything
           clearAuth();
         }
@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else {
       // No token or user data - ensure clean state
       clearAuth();
-    }
+      }
     
     setIsLoading(false);
   }, []);

@@ -37,12 +37,16 @@ createRoot(document.getElementById('root')!).render(
             } else {
               console.warn('⚠️ Sentry may be blocked (ad blocker?) - error not sent');
               // Fallback: Log error locally
-              logErrorLocally(error, { componentStack: info.componentStack });
+              logErrorLocally(error instanceof Error ? error : new Error(String(error)), { 
+                componentStack: info.componentStack || undefined 
+              });
             }
           } catch (sentryError) {
             console.error('❌ Failed to send error to Sentry:', sentryError);
             // Fallback: Log error locally
-            logErrorLocally(error, { componentStack: info.componentStack });
+            logErrorLocally(error instanceof Error ? error : new Error(String(error)), { 
+              componentStack: info.componentStack || undefined 
+            });
           }
         } else {
           console.warn('⚠️ Sentry DSN not configured. Error not sent.');

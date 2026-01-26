@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/useAuth';
 
@@ -13,9 +14,58 @@ const BottomNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
+  const [shouldShow, setShouldShow] = useState(false);
 
-  // Don't show navigation if not authenticated
-  if (!isAuthenticated) {
+  // Pages where navigation should never appear
+  const hiddenPages = ['/auth', '/welcome', '/', '/mood-transition', '/mood-skip'];
+  
+  // Check if current page should hide navigation
+  // Special case: mood-check-in only hides nav if coming from welcome page
+  const isMoodCheckIn = location.pathname === '/mood-check-in';
+  const isFromWelcome = location.state?.fromWelcome || 
+                        document.referrer.includes('/welcome') ||
+                        sessionStorage.getItem('justCompletedWelcome') === 'true';
+  
+  const shouldHide = hiddenPages.includes(location.pathname) || 
+                     (isMoodCheckIn && isFromWelcome);
+
+  useEffect(() => {
+    // Don't show if not authenticated or on hidden pages
+    if (!isAuthenticated || shouldHide) {
+      setShouldShow(false);
+      return;
+    }
+
+    // Special handling for mood-check-in page
+    if (isMoodCheckIn) {
+      // If coming from welcome page, don't show nav (user is doing initial check-in)
+      if (isFromWelcome) {
+        setShouldShow(false);
+        return;
+      }
+      // Otherwise, user is returning to mood-check-in, show nav immediately
+      setShouldShow(true);
+      return;
+    }
+
+    // If coming from welcome page (but not to mood-check-in), wait for transition to complete
+    // WelcomePage shows for 3 seconds, then fades for 0.7s, then navigates
+    if (isFromWelcome) {
+      // Wait for welcome page transition to complete (3s display + 0.7s fade)
+      const timer = setTimeout(() => {
+        setShouldShow(true);
+        sessionStorage.removeItem('justCompletedWelcome');
+      }, 3800); // Slightly after welcome transition completes
+
+      return () => clearTimeout(timer);
+    } else {
+      // For other pages, show immediately but with animation
+      setShouldShow(true);
+    }
+  }, [isAuthenticated, shouldHide, location.pathname, location.state, isMoodCheckIn, isFromWelcome]);
+
+  // Don't show navigation if not authenticated or on hidden pages
+  if (!isAuthenticated || shouldHide || !shouldShow) {
     return null;
   }
 
@@ -86,15 +136,19 @@ const BottomNavigation = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 pt-2 pointer-events-none">
+    <div 
+      className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 pt-2 pointer-events-none"
+      style={{
+        animation: 'slideUp 0.6s ease-out',
+        animationFillMode: 'both',
+      }}
+    >
       <nav
         className="mx-auto max-w-sm rounded-3xl px-2 py-2 pointer-events-auto"
         style={{
           background: "#151D18",
           backdropFilter: "blur(20px)",
           boxShadow: "0 -4px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
-          animation: 'slideUp 0.6s ease-out 0.3s',
-          animationFillMode: 'both',
         }}
       >
         <div className="flex items-center justify-around">

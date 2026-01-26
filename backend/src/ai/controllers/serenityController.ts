@@ -10,6 +10,7 @@ interface SerenityChatBody {
     content: string;
   }[];
   moodContext?: string;  // Optional mood check-in context from the frontend
+  language?: 'en' | 'pt';  // User's language preference (English or Portuguese)
 }
 
 /**
@@ -33,9 +34,10 @@ export const serenityChat = async (
   res: Response
 ): Promise<void> => {
   try {
-    // Extract message, history, and mood context from request body
+    // Extract message, history, mood context, and language from request body
     // moodContext is optional - it only exists if user did a mood check-in
-    const { message, history, moodContext }: SerenityChatBody = req.body ?? {};
+    // language is optional - defaults to 'en' if not provided
+    const { message, history, moodContext, language = 'en' }: SerenityChatBody = req.body ?? {};
 
     if (!message || typeof message !== "string") {
       res.status(400).json({ message: "Message is required" });
@@ -80,13 +82,14 @@ export const serenityChat = async (
         ? (req.user as any).id ?? (req.user as any)._id ?? null
         : null;
 
-    // Pass mood context to the service so it can be included in the AI prompt
-    // This allows Serenity to understand the user's emotional state
+    // Pass mood context and language to the service so it can be included in the AI prompt
+    // This allows Serenity to understand the user's emotional state and respond in their language
     // Note: getSerenityReply now handles AI errors internally and returns a fallback message
     const result = await getSerenityReply({
       message,
       history,
       moodContext,  // Pass mood context to the service
+      language,  // Pass language preference to the service
       userId,
       isGuest,
     });

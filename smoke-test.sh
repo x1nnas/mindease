@@ -78,10 +78,10 @@ cd ..
 sleep 5
 
 # Check if backend is running
-if curl -s http://localhost:5000/api/ > /dev/null 2>&1; then
+if curl -s http://localhost:5050/api/ > /dev/null 2>&1; then
   pass "Backend started and responding"
 else
-  fail "Backend not responding on port 5000"
+  fail "Backend not responding on port 5050"
   kill $BACKEND_PID 2>/dev/null || true
   exit 1
 fi
@@ -105,7 +105,7 @@ ENDPOINTS=(
 )
 
 for endpoint in "${ENDPOINTS[@]}"; do
-  if curl -s -o /dev/null -w "%{http_code}" "http://localhost:5000${endpoint}" | grep -q "401\|400\|405"; then
+  if curl -s -o /dev/null -w "%{http_code}" "http://localhost:5050${endpoint}" | grep -q "401\|400\|405"; then
     pass "Endpoint exists: ${endpoint}"
   else
     fail "Endpoint missing or broken: ${endpoint}"
@@ -130,7 +130,7 @@ TEST_EMAIL="smoketest$(date +%s)@test.com"
 TEST_PASSWORD="testpass123"
 
 # Register
-REGISTER_RESPONSE=$(curl -s -X POST http://localhost:5000/api/auth/register \
+REGISTER_RESPONSE=$(curl -s -X POST http://localhost:5050/api/auth/register \
   -H "Content-Type: application/json" \
   -d "{\"email\":\"${TEST_EMAIL}\",\"password\":\"${TEST_PASSWORD}\"}")
 
@@ -144,7 +144,7 @@ fi
 
 # Login
 if [ -n "$TOKEN" ]; then
-  LOGIN_RESPONSE=$(curl -s -X POST http://localhost:5000/api/auth/login \
+  LOGIN_RESPONSE=$(curl -s -X POST http://localhost:5050/api/auth/login \
     -H "Content-Type: application/json" \
     -d "{\"email\":\"${TEST_EMAIL}\",\"password\":\"${TEST_PASSWORD}\"}")
   
@@ -160,7 +160,7 @@ fi
 echo ""
 info "Test 6: Mood Check-In (API)"
 if [ -n "$TOKEN" ]; then
-  MOOD_RESPONSE=$(curl -s -X POST http://localhost:5000/api/mood \
+  MOOD_RESPONSE=$(curl -s -X POST http://localhost:5050/api/mood \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${TOKEN}" \
     -d '{"value":75,"label":"Feeling Good"}')
@@ -170,7 +170,7 @@ if [ -n "$TOKEN" ]; then
     
     # Test update (same day)
     sleep 1
-    MOOD_UPDATE=$(curl -s -X POST http://localhost:5000/api/mood \
+    MOOD_UPDATE=$(curl -s -X POST http://localhost:5050/api/mood \
       -H "Content-Type: application/json" \
       -H "Authorization: Bearer ${TOKEN}" \
       -d '{"value":80,"label":"Feeling Great"}')
@@ -182,7 +182,7 @@ if [ -n "$TOKEN" ]; then
     fi
     
     # Test retrieval
-    MOOD_GET=$(curl -s -X GET http://localhost:5000/api/mood/today \
+    MOOD_GET=$(curl -s -X GET http://localhost:5050/api/mood/today \
       -H "Authorization: Bearer ${TOKEN}")
     
     if echo "$MOOD_GET" | grep -q "moodCheckIn"; then
@@ -199,7 +199,7 @@ fi
 echo ""
 info "Test 7: Journal Entry (API)"
 if [ -n "$TOKEN" ]; then
-  JOURNAL_RESPONSE=$(curl -s -X POST http://localhost:5000/api/journal \
+  JOURNAL_RESPONSE=$(curl -s -X POST http://localhost:5050/api/journal \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${TOKEN}" \
     -d '{"content":"This is a test journal entry","allowSerenityAccess":false}')
@@ -208,7 +208,7 @@ if [ -n "$TOKEN" ]; then
     pass "Journal entry creation works"
     
     # Test retrieval
-    JOURNAL_GET=$(curl -s -X GET http://localhost:5000/api/journal \
+    JOURNAL_GET=$(curl -s -X GET http://localhost:5050/api/journal \
       -H "Authorization: Bearer ${TOKEN}")
     
     if echo "$JOURNAL_GET" | grep -q "journalEntries"; then
@@ -225,7 +225,7 @@ fi
 echo ""
 info "Test 8: Serenity Chat (API)"
 if [ -n "$TOKEN" ]; then
-  CHAT_RESPONSE=$(curl -s -X POST http://localhost:5000/api/serenity/chat \
+  CHAT_RESPONSE=$(curl -s -X POST http://localhost:5050/api/serenity/chat \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${TOKEN}" \
     -d '{"message":"Hello"}')

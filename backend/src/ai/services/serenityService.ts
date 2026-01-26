@@ -11,6 +11,7 @@ export interface SerenityRequest {
   message: string;
   history?: SerenityMessage[];
   moodContext?: string;  // Optional mood check-in context from frontend
+  language?: 'en' | 'pt';  // User's language preference
   userId?: string | null;
   isGuest?: boolean;
 }
@@ -86,6 +87,7 @@ export async function getSerenityReply({
   message,
   history = [],
   moodContext,
+  language = 'en',
   userId,
   isGuest = false,
 }: SerenityRequest): Promise<SerenityResponse> {
@@ -103,15 +105,21 @@ export async function getSerenityReply({
     ? "This user is currently using a limited guest experience. You may gently mention that more personalized support is available when they create an account, but you must still be as helpful as possible right now.\n\n"
     : "";
 
-  // STEP 2: Build mood context section (if available)
+  // STEP 2: Build language instruction section
+  // This tells Serenity to respond in the user's preferred language
+  const languageInstruction = language === 'pt'
+    ? `\n\nLANGUAGE PREFERENCE:\nThe user prefers to communicate in Portuguese (Portugal). Always respond in Portuguese (Portugal), using the Portuguese variant from Portugal (not Brazilian Portuguese). Use "tu" (informal) instead of "você" when addressing the user. Use Portuguese expressions and phrasing natural to Portugal.\n`
+    : `\n\nLANGUAGE PREFERENCE:\nThe user prefers to communicate in English. Always respond in English.\n`;
+
+  // STEP 3: Build mood context section (if available)
   // This adds information about the user's recent mood check-in to the system prompt
   const moodContextSection = moodContext
     ? `\n\nUSER MOOD CONTEXT:\n${moodContext}\n\nUse this context to understand the user's current emotional state. You can reference it naturally in your responses, but don't force it. If the user's message doesn't relate to their mood, focus on what they're saying now.\n`
     : "";
 
-  // STEP 3: Combine all system prompt parts
-  // The order is: guest notice → base prompt → mood context
-  const fullSystemPrompt = systemPrefixForGuest + SERENITY_SYSTEM_PROMPT + moodContextSection;
+  // STEP 4: Combine all system prompt parts
+  // The order is: guest notice → base prompt → language instruction → mood context
+  const fullSystemPrompt = systemPrefixForGuest + SERENITY_SYSTEM_PROMPT + languageInstruction + moodContextSection;
 
   const systemMessage: SerenityMessage = {
     role: "system",
@@ -143,17 +151,17 @@ export async function getSerenityReply({
   const fallbackMessage = "I'm having trouble responding right now. Let's try again in a moment.";
 
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: conversation,
-      user: userIdentifier,
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: conversation,
+    user: userIdentifier,
       max_tokens: maxTokens, // Limit output tokens to control costs
-    });
+  });
 
-    const reply =
+  const reply =
       response.choices[0]?.message?.content?.trim() ?? fallbackMessage;
 
-    return { reply };
+  return { reply };
   } catch (error) {
     // Log error for debugging (but don't expose technical details to user)
     console.error("OpenAI API error:", error);

@@ -2,10 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ErrorTestingButton } from '../components/ErrorTesting';
 import { SentryDiagnostics } from '../components/SentryDiagnostics';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { BrandLogo } from '../components/BrandLogo';
+import { useLanguage } from '../i18n/useLanguage';
 
 export default function HomePage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
   const [isEntering, setIsEntering] = useState(() => 
     !!location.state?.fromMoodCheckIn || !!location.state?.fromJournal
   );
@@ -23,9 +27,9 @@ export default function HomePage() {
   // Get time-based greeting
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return t('goodMorning');
+    if (hour < 18) return t('goodAfternoon');
+    return t('goodEvening');
   };
 
   const handleNavigateToChat = () => {
@@ -33,7 +37,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#1a241f]">
+    <div className="relative h-screen overflow-hidden bg-[#1a241f]">
       {/* Glow background layer - matching other pages */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Main green glow - top left */}
@@ -69,7 +73,18 @@ export default function HomePage() {
       {import.meta.env.DEV && <SentryDiagnostics />}
 
       {/* Main content with bottom padding for nav */}
-      <div className="flex-1 flex flex-col px-6 pt-16 pb-32 relative z-10">
+      <div className="flex-1 flex flex-col px-4 sm:px-6 pt-8 sm:pt-16 pb-24 sm:pb-32 relative z-10 overflow-y-auto" style={{ maxHeight: '100vh' }}>
+        {/* Language Switcher - subtle top right */}
+        <div 
+          className="absolute top-6 right-6 z-20"
+          style={{ 
+            animation: 'fadeUp 0.8s ease-out 0.4s',
+            animationFillMode: 'both',
+          }}
+        >
+          <LanguageSwitcher />
+        </div>
+
         {/* Hero Section */}
         <div
           className={`flex-1 flex flex-col justify-center transition-all duration-1000 ease-out ${
@@ -99,9 +114,9 @@ export default function HomePage() {
               {getGreeting()}
             </p>
             <h1 className="text-3xl font-light text-white/90 leading-relaxed tracking-wide">
-              This moment is yours.
+              {t('thisMomentYours')}
               <br />
-              <span className="text-white/70">How can I help?</span>
+              <span className="text-white/70">{t('howCanIHelp')}</span>
             </h1>
           </div>
 
@@ -153,10 +168,10 @@ export default function HomePage() {
                 </div>
                 <div className="text-center">
                   <h2 className="text-xl font-medium text-white/90 mb-1">
-                    Talk to Serenity
+                    {t('talkToSerenity')}
                   </h2>
                   <p className="text-sm text-white/60">
-                    I'm here whenever you need me
+                    {t('serenityHere')}
                   </p>
                 </div>
               </div>
@@ -202,7 +217,7 @@ export default function HomePage() {
                   </svg>
                 </div>
                 <span className="text-sm font-medium text-white/80">
-                  Mood Check-In
+                  {t('moodCheckIn')}
                 </span>
               </div>
             </button>
@@ -238,10 +253,21 @@ export default function HomePage() {
                   </svg>
                 </div>
                 <span className="text-sm font-medium text-white/80">
-                  Journal
+                  {t('journal')}
                 </span>
               </div>
             </button>
+          </div>
+
+          {/* Watermark Logo with MindEase text */}
+          <div
+            className="mt-12 mb-8"
+            style={{ 
+              animation: 'fadeUp 0.8s ease-out 0.8s',
+              animationFillMode: 'both',
+            }}
+          >
+            <BrandLogo size="md" showText={true} />
           </div>
         </div>
       </div>

@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { createJournalEntry, updateJournalEntry, getAllJournalEntries as apiGetAllJournalEntries, type JournalEntryResponse } from '../services/api';
+import { BrandLogo } from '../components/BrandLogo';
+import { useLanguage } from '../i18n/useLanguage';
 
 type Mode = 'write' | 'entries' | 'view';
 
@@ -8,14 +10,14 @@ type Mode = 'write' | 'entries' | 'view';
  * Formats a date for display
  * Returns "Today", "Yesterday", or formatted date string
  */
-const formatDate = (date: Date): string => {
+const formatDate = (date: Date, t: (key: 'today' | 'yesterday') => string): string => {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const yesterday = new Date(today.getTime() - 86400000);
   const entryDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
-  if (entryDate.getTime() === today.getTime()) return 'Today';
-  if (entryDate.getTime() === yesterday.getTime()) return 'Yesterday';
+  if (entryDate.getTime() === today.getTime()) return t('today');
+  if (entryDate.getTime() === yesterday.getTime()) return t('yesterday');
   
   return date.toLocaleDateString('en-US', { 
     month: 'short', 
@@ -27,6 +29,7 @@ const formatDate = (date: Date): string => {
 export default function JournalPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
   const [mode, setMode] = useState<Mode>('write');
   const [entry, setEntry] = useState('');
   const [editingEntryId, setEditingEntryId] = useState<string | null>(null); // Track which entry is being edited
@@ -66,7 +69,7 @@ export default function JournalPage() {
   }, [entry, mode]);
 
   useEffect(() => {
-    // Animate in if coming from HomePage
+    // Animate in if coming from HomePage or ChatPage
     if (isEntering) {
       const timer = setTimeout(() => {
         setIsEntering(false);
@@ -140,7 +143,7 @@ export default function JournalPage() {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-[#1a241f] overflow-hidden">
+    <div className="relative h-screen flex flex-col bg-[#1a241f] overflow-hidden">
       {/* Glow background layer - matching other pages */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Main green glow - top left */}
@@ -172,19 +175,23 @@ export default function JournalPage() {
       </div>
 
       {/* Content */}
-      <main className="relative z-10 flex flex-col flex-1 px-6 py-8 sm:py-12 pb-28">
+      <main className="relative z-10 flex flex-col flex-1 px-4 sm:px-6 py-4 sm:py-8 pb-20 sm:pb-28 overflow-y-auto">
         
         {/* Header */}
         <div
-          className={`mb-6 transition-all duration-700 ease-out ${
-            isEntering 
-              ? 'opacity-0 transform translate-y-[-10px]' 
-              : 'opacity-100 transform translate-y-0'
-          }`}
+          className="mb-6"
+          style={{
+            animation: 'fadeUpSlide 0.6s ease-out 0.1s',
+            animationFillMode: 'both',
+          }}
         >
           <button
             onClick={handleCancel}
             className="flex items-center gap-2 text-white/60 hover:text-white/80 transition-colors duration-300 mb-6"
+            style={{
+              animation: 'fadeIn 0.5s ease-out 0.15s',
+              animationFillMode: 'both',
+            }}
           >
             <svg 
               className="w-4 h-4" 
@@ -199,24 +206,36 @@ export default function JournalPage() {
                 d="M15 19l-7-7 7-7" 
               />
             </svg>
-            <span className="text-sm font-light">Back</span>
+            <span className="text-sm font-light">{t('back')}</span>
           </button>
           
-          <h1 className="text-2xl sm:text-3xl font-light text-white/90 tracking-wide">
-            Your Journal
+          <h1 
+            className="text-2xl sm:text-3xl font-light text-white/90 tracking-wide"
+            style={{
+              animation: 'fadeUpSlide 0.6s ease-out 0.2s',
+              animationFillMode: 'both',
+            }}
+          >
+            {t('yourJournal')}
           </h1>
-          <p className="mt-2 text-white/60 text-sm font-light">
-            A quiet space for your thoughts
+          <p 
+            className="mt-2 text-white/60 text-sm font-light"
+            style={{
+              animation: 'fadeUpSlide 0.6s ease-out 0.25s',
+              animationFillMode: 'both',
+            }}
+          >
+            {t('quietSpace')}
           </p>
         </div>
 
         {/* Mode Toggle */}
         <div
-          className={`mb-6 transition-all duration-700 ease-out delay-50 ${
-            isEntering 
-              ? 'opacity-0 transform translate-y-[-10px]' 
-              : 'opacity-100 transform translate-y-0'
-          }`}
+          className="mb-6"
+          style={{
+            animation: 'fadeUpSlide 0.6s ease-out 0.3s',
+            animationFillMode: 'both',
+          }}
         >
           <div 
             className="inline-flex p-1 rounded-xl"
@@ -245,7 +264,7 @@ export default function JournalPage() {
                     : 'transparent',
                 }}
               >
-                <span className="relative z-10 capitalize">{m}</span>
+                <span className="relative z-10">{m === 'write' ? t('write') : t('entries')}</span>
               </button>
             ))}
           </div>
@@ -266,7 +285,7 @@ export default function JournalPage() {
                   {/* Entry Header */}
                   <div className="mb-4">
                     <span className="text-xs text-white/50 font-light tracking-wide">
-                      {formatDate(new Date(viewingEntry.createdAt))}
+                      {formatDate(new Date(viewingEntry.createdAt), t)}
                     </span>
                   </div>
 
@@ -288,14 +307,14 @@ export default function JournalPage() {
                       onClick={handleEditClick}
                       className="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white font-medium rounded-xl hover:from-green-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all"
                     >
-                      Edit Entry
+                      {t('editEntry')}
                     </button>
                     
                     <button 
                       onClick={handleBackToEntries}
                       className="w-full py-3 text-sm text-white/60 hover:text-white/80 transition-colors duration-300 font-light tracking-wide"
                     >
-                      Back to Entries
+                      {t('backToEntries')}
                     </button>
                   </div>
                 </>
@@ -303,11 +322,11 @@ export default function JournalPage() {
             </div>
           ) : mode === 'write' ? (
             <div
-              className={`flex flex-col flex-1 transition-all duration-500 ease-out ${
-                isEntering 
-                  ? 'opacity-0 transform translate-x-[-20px]' 
-                  : 'opacity-100 transform translate-x-0'
-              }`}
+              className="flex flex-col flex-1"
+              style={{
+                animation: 'fadeUpSlide 0.6s ease-out 0.35s',
+                animationFillMode: 'both',
+              }}
             >
               {/* Writing Area - Auto-expanding */}
               <div 
@@ -338,11 +357,13 @@ export default function JournalPage() {
                   onChange={(e) => setEntry(e.target.value)}
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
-                  placeholder="What's been on your mind?"
+                  placeholder={t('whatOnMind')}
                   className="w-full p-5 sm:p-6 bg-transparent text-white/90 placeholder:text-white/40 resize-none focus:outline-none text-base sm:text-lg font-light leading-relaxed tracking-wide"
                   style={{
                     caretColor: "hsl(150 50% 50%)",
                     minHeight: "120px",
+                    animation: 'fadeIn 0.5s ease-out 0.45s',
+                    animationFillMode: 'both',
                   }}
                 />
               </div>
@@ -351,7 +372,7 @@ export default function JournalPage() {
               <div
                 className="mt-6 space-y-3"
                 style={{ 
-                  animation: 'fadeUp 0.8s ease-out 0.2s',
+                  animation: 'fadeUp 0.6s ease-out 0.5s',
                   animationFillMode: 'both',
                 }}
               >
@@ -360,7 +381,7 @@ export default function JournalPage() {
                   disabled={!entry.trim() || isSaving}
                   className="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white font-medium rounded-xl hover:from-green-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSaving ? 'Saving...' : editingEntryId ? 'Update entry' : 'Save entry'}
+                  {isSaving ? t('saving') : editingEntryId ? t('updateEntry') : t('saveEntry')}
                 </button>
                 
                 <button 
@@ -414,7 +435,7 @@ export default function JournalPage() {
                       />
                     ))}
                   </div>
-                  <p className="text-white/60 text-sm font-light tracking-wide">Loading entries...</p>
+                  <p className="text-white/60 text-sm font-light tracking-wide">{t('loadingEntries')}</p>
                 </div>
               ) : entries.length === 0 ? (
                 <div 
@@ -425,10 +446,10 @@ export default function JournalPage() {
                   }}
                 >
                   <p className="text-white/60 font-light">
-                    No entries yet
+                    {t('noEntriesYet')}
                   </p>
                   <p className="text-white/40 text-sm font-light mt-1">
-                    Your thoughts will appear here
+                    {t('thoughtsAppearHere')}
                   </p>
                 </div>
               ) : (
@@ -452,7 +473,7 @@ export default function JournalPage() {
                     }}
                   >
                     <span className="text-xs text-white/50 font-light tracking-wide">
-                      {formatDate(new Date(item.createdAt))}
+                      {formatDate(new Date(item.createdAt), t)}
                     </span>
                     <p 
                       className="mt-2 text-white/80 text-sm sm:text-base font-light leading-relaxed line-clamp-2"
@@ -471,6 +492,19 @@ export default function JournalPage() {
             </div>
           )}
         </div>
+
+        {/* Watermark Logo with MindEase text - subtle branding */}
+        {(mode === 'write' || mode === 'entries') && (
+          <div
+            className="mt-12 mb-16 sm:mb-20"
+            style={{ 
+              animation: 'fadeUp 0.8s ease-out 0.8s',
+              animationFillMode: 'both',
+            }}
+          >
+            <BrandLogo size="md" showText={true} />
+          </div>
+        )}
       </main>
 
       <style>{`
@@ -482,6 +516,24 @@ export default function JournalPage() {
           to {
             opacity: 1;
             transform: translateY(0);
+          }
+        }
+        @keyframes fadeUpSlide {
+          from {
+            opacity: 0;
+            transform: translateY(-12px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
           }
         }
         @keyframes loadingDot {

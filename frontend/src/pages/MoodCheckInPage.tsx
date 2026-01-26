@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { saveOrUpdateMoodCheckIn, hasCheckedInToday } from "../utils/moodUtils";
+import { saveOrUpdateMoodCheckIn, hasCheckedInToday as checkHasCheckedInToday } from "../utils/moodUtils";
+import { useLanguage } from "../i18n/useLanguage";
 
 const moodLabels = [
   { value: 0, label: "Very Bad 😔", hue: 200, saturation: 20, lightness: 35 },
@@ -37,9 +38,13 @@ const getMoodData = (value: number) => {
 
 const MoodCheckIn = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [moodValue, setMoodValue] = useState([50]);
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingMood, setIsCheckingMood] = useState(true); // Loading state for initial mood check
+  const [hasCheckedInToday, setHasCheckedInToday] = useState(false); // Track if user already checked in
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false); // Confirmation dialog state
+  const [hasSelectedMood, setHasSelectedMood] = useState(false); // Track if user has moved the slider
   const mood = getMoodData(moodValue[0]);
 
   // Check if user has already checked in today when component loads
@@ -48,11 +53,9 @@ const MoodCheckIn = () => {
     const checkToday = async () => {
       setIsCheckingMood(true);
       try {
-        const checkedIn = await hasCheckedInToday();
-        if (checkedIn) {
-          // Optional: Could show a message like "You already checked in today. Update your mood?"
-          // Or pre-fill the slider with today's mood value
-        }
+        const checkedIn = await checkHasCheckedInToday();
+        setHasCheckedInToday(checkedIn);
+        // TODO: Could pre-fill slider with today's mood value if checkedIn
       } catch (error) {
         // Silently fail - this is just a check, not critical
         console.error('Error checking today mood:', error);
@@ -63,10 +66,17 @@ const MoodCheckIn = () => {
     checkToday();
   }, []);
 
+  // Track if user has moved the slider from default
+  useEffect(() => {
+    if (moodValue[0] !== 50) {
+      setHasSelectedMood(true);
+    }
+  }, [moodValue]);
+
   const glowColor = `hsl(${mood.hue}, ${mood.saturation}%, ${mood.lightness}%)`;
   const glowColorMuted = `hsl(${mood.hue}, ${mood.saturation - 10}%, ${mood.lightness - 15}%)`;
 
-  const handleContinue = async () => {
+  const saveMood = async () => {
     setIsLoading(true);
     try {
       // Save or update mood check-in for today via API
@@ -79,26 +89,59 @@ const MoodCheckIn = () => {
         label: mood.label,
       });
       
-      // Navigate to home page
-      navigate('/home', { state: { fromMoodCheckIn: true } });
+      // Navigate to mood transition page with mood value
+      navigate('/mood-transition', { state: { moodValue: moodValue[0] } });
     } catch (error) {
       console.error('Error saving mood check-in:', error);
       // Still navigate even if save fails (graceful degradation)
-      navigate('/home', { state: { fromMoodCheckIn: true } });
+      navigate('/mood-transition', { state: { moodValue: moodValue[0] } });
     } finally {
       setIsLoading(false);
+      setShowConfirmDialog(false);
     }
   };
 
-  const handleSkip = () => {
-    // No data saved, just navigate to home page
-    navigate('/home', { state: { fromMoodCheckIn: true } });
+  const handleContinue = async () => {
+    // If user has already checked in today, show confirmation dialog
+    if (hasCheckedInToday && !showConfirmDialog) {
+      setShowConfirmDialog(true);
+      return;
+    }
+
+    // Otherwise, save directly
+    await saveMood();
   };
 
+  const handleConfirmUpdate = () => {
+    setShowConfirmDialog(false);
+    saveMood();
+  };
+
+  const handleCancelUpdate = () => {
+    setShowConfirmDialog(false);
+  };
+
+  const handleSkip = () => {
+    // No data saved, navigate to mood skip page
+    navigate('/mood-skip');
+  };
+
+  const [isEntering, setIsEntering] = useState(true);
+
+  useEffect(() => {
+    // Smooth entrance animation when coming from welcome page
+    // Use requestAnimationFrame to ensure smooth transition
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        setIsEntering(false);
+      }, 50);
+    });
+  }, []);
+
   return (
-    <div className="relative min-h-screen flex flex-col bg-[#1a241f] overflow-hidden">
-      {/* Base ambient background - matching EntryPage/AuthPage style */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+    <div className="relative h-screen flex flex-col bg-[#1a241f] overflow-hidden">
+      {/* Base ambient background - matching EntryPage/AuthPage style - always visible */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none bg-[#1a241f]">
         {/* Main green glow - top left */}
         <div
           className="absolute -top-1/4 -left-1/4 w-[600px] h-[600px] rounded-full"
@@ -127,8 +170,10 @@ const MoodCheckIn = () => {
         />
       </div>
 
-      {/* Content */}
-      <main className="relative z-10 flex flex-col flex-1 items-center justify-between px-6 py-12 sm:py-16 pb-28">
+      {/* Content with smooth fade-in */}
+      <main className={`relative z-10 flex flex-col flex-1 items-center justify-between px-4 sm:px-6 py-6 sm:py-12 pb-20 sm:pb-28 transition-opacity duration-700 ease-out overflow-y-auto ${
+        isEntering ? 'opacity-0' : 'opacity-100'
+      }`}>
         {/* Loading overlay for initial mood check */}
         {isCheckingMood && (
           <div className="absolute inset-0 flex items-center justify-center bg-[#1a241f]/80 backdrop-blur-sm z-20">
@@ -145,7 +190,7 @@ const MoodCheckIn = () => {
                   />
                 ))}
               </div>
-              <p className="text-white/60 text-sm font-light tracking-wide">Loading...</p>
+              <p className="text-white/60 text-sm font-light tracking-wide">{t('pleaseWait')}</p>
             </div>
           </div>
         )}
@@ -158,10 +203,8 @@ const MoodCheckIn = () => {
             animationFillMode: 'both',
           }}
         >
-          <h1 className="text-xl sm:text-2xl font-light text-white/90 tracking-wide leading-relaxed">
-            Choose how you're feeling
-            <br />
-            right now
+          <h1 className="text-xl sm:text-2xl font-light text-white/90 tracking-wide leading-relaxed whitespace-pre-line">
+            {t('chooseFeeling')}
           </h1>
         </div>
 
@@ -284,7 +327,7 @@ const MoodCheckIn = () => {
               disabled={isLoading}
               className="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white font-medium rounded-xl hover:from-green-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Saving..." : "Continue"}
+              {isLoading ? t('pleaseWait') : t('continue')}
             </button>
             
             <button
@@ -292,11 +335,54 @@ const MoodCheckIn = () => {
               disabled={isLoading}
               className="w-full py-3 text-sm text-white/60 hover:text-white/80 transition-colors duration-300 font-light tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Skip for now
+              {hasCheckedInToday || hasSelectedMood ? t('returnHome') : t('skipForNow')}
             </button>
           </div>
         </div>
       </main>
+
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-6">
+          <div 
+            className="max-w-sm w-full rounded-2xl p-6 space-y-4"
+            style={{
+              background: "linear-gradient(135deg, hsl(150 50% 50% / 0.15) 0%, hsl(150 50% 50% / 0.08) 100%)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
+            }}
+          >
+            <h3 className="text-lg font-medium text-white/90">
+              {t('updateMood')}
+            </h3>
+            <p className="text-sm text-white/70 font-light leading-relaxed">
+              {t('alreadyCheckedIn')}
+            </p>
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={handleCancelUpdate}
+                className="flex-1 px-4 py-2.5 text-sm text-white/70 hover:text-white/90 transition-colors duration-200 font-light rounded-lg"
+                style={{
+                  background: "rgba(255, 255, 255, 0.05)",
+                }}
+              >
+                {t('cancel')}
+              </button>
+              <button
+                onClick={handleConfirmUpdate}
+                className="flex-1 px-4 py-2.5 text-sm text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 active:scale-95"
+                style={{
+                  background: "linear-gradient(135deg, hsl(150 50% 50%) 0%, hsl(150 50% 60%) 100%)",
+                  boxShadow: "0 2px 12px hsl(150 50% 50% / 0.3)",
+                }}
+              >
+                {t('yesUpdate')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style>{`
         @keyframes fadeUp {
           from {

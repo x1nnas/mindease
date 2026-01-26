@@ -64,6 +64,24 @@ export async function getAllMoodCheckIns(): Promise<MoodCheckIn[]> {
 }
 
 /**
+ * Checks if a mood check-in was created "today" based on user's local timezone
+ * 
+ * @param moodTimestamp - ISO timestamp string from the mood check-in
+ * @returns true if the mood was created today in user's local timezone
+ */
+function isMoodFromToday(moodTimestamp: string): boolean {
+  const moodDate = new Date(moodTimestamp);
+  const now = new Date();
+  
+  // Get local date components for both dates
+  const moodLocalDate = new Date(moodDate.getFullYear(), moodDate.getMonth(), moodDate.getDate());
+  const todayLocalDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+  // Compare dates (ignoring time)
+  return moodLocalDate.getTime() === todayLocalDate.getTime();
+}
+
+/**
  * Normalizes a date to YYYY-MM-DD format
  * Backend stores dates normalized to start-of-day UTC
  * This function converts API date strings to the format used by frontend
@@ -128,7 +146,7 @@ export async function getMoodCheckInForDate(dateKey?: string): Promise<MoodCheck
 }
 
 /**
- * Checks if user has already checked in today
+ * Checks if user has already checked in today (based on user's local timezone)
  * 
  * @returns Promise that resolves to true if a mood check-in exists for today, false otherwise
  * 
@@ -136,10 +154,31 @@ export async function getMoodCheckInForDate(dateKey?: string): Promise<MoodCheck
  * - Show "You already checked in today" message
  * - Disable check-in button if already done
  * - Show different UI based on check-in status
+ * 
+ * NOTE: Uses local timezone to determine "today", so midnight in user's timezone
+ * resets the check-in requirement, not UTC midnight.
  */
 export async function hasCheckedInToday(): Promise<boolean> {
-  const mood = await getMoodCheckInForDate();
-  return mood !== null;
+  try {
+    // Get all moods and check if any were created "today" in local timezone
+    const allMoods = await getAllMoodCheckIns();
+    
+    // Check if any mood was created today (based on local timezone)
+    return allMoods.some(m => isMoodFromToday(m.timestamp));
+  } catch (error) {
+    console.error('Error checking if checked in today:', error);
+    // Fallback: try the API's "today" endpoint (uses UTC, but better than nothing)
+    try {
+      const mood = await getMoodCheckInForDate();
+      if (mood && mood.timestamp) {
+        return isMoodFromToday(mood.timestamp);
+      }
+      return false;
+    } catch (fallbackError) {
+      console.error('Fallback check also failed:', fallbackError);
+      return false;
+    }
+  }
 }
 
 /**

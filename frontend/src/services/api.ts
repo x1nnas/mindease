@@ -119,13 +119,15 @@ export const login = async (email: string, password: string): Promise<AuthRespon
 export const sendMessage = async (
   message: string,
   history?: Array<{ role: 'user' | 'assistant' | 'system'; content: string }>,
-  moodContext?: string | null
+  moodContext?: string | null,
+  language?: 'en' | 'pt'
 ): Promise<SerenityResponse> => {
-  // Build the request body with message, history, and optional mood context
+  // Build the request body with message, history, optional mood context, and language
   const requestBody: {
     message: string;
     history?: Array<{ role: 'user' | 'assistant' | 'system'; content: string }>;
     moodContext?: string;
+    language?: 'en' | 'pt';
   } = {
     message,
   };
@@ -139,6 +141,11 @@ export const sendMessage = async (
   // This prevents sending null/undefined values
   if (moodContext) {
     requestBody.moodContext = moodContext;
+  }
+
+  // Include language preference (defaults to 'en' if not provided)
+  if (language) {
+    requestBody.language = language;
   }
 
   const response = await fetch(`${API_BASE_URL}/api/serenity/chat`, {

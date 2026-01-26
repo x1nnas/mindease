@@ -8,11 +8,11 @@ function getRequiredEnvVars() {
 
 function getOptionalEnvVars() {
   return {
-    PORT: process.env.PORT || '5000',
+    PORT: process.env.PORT || '5050',
     FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
     // AI API Limits (for cost control - $8/month budget)
     AI_MAX_TOKENS: process.env.AI_MAX_TOKENS || '500', // Max output tokens per response
-    AI_MAX_HISTORY_MESSAGES: process.env.AI_MAX_HISTORY_MESSAGES || '10', // Max conversation history messages
+    AI_MAX_HISTORY_MESSAGES: process.env.AI_MAX_HISTORY_MESSAGES || '50', // Max conversation history messages (increased for better context)
     AI_MAX_MESSAGE_LENGTH: process.env.AI_MAX_MESSAGE_LENGTH || '2000', // Max user message length (characters)
     AI_DAILY_LIMIT: process.env.AI_DAILY_LIMIT || '50', // Max requests per user/IP per day
     RATE_LIMIT_MAX: process.env.RATE_LIMIT_MAX || '20', // Requests per minute (rate limit)

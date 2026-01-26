@@ -1,10 +1,14 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './providers/AuthProvider';
+import { LanguageProvider } from './i18n/useLanguage';
 import { useAuth } from './contexts/useAuth';
+import { BrandLogo } from './components/BrandLogo';
 import AuthPage from './pages/AuthPage';
 import EntryPage from './pages/EntryPage';
 import WelcomePage from './pages/WelcomePage';
 import MoodCheckInPage from './pages/MoodCheckInPage';
+import MoodTransitionPage from './pages/MoodTransitionPage';
+import MoodSkipPage from './pages/MoodSkipPage';
 import HomePage from './pages/HomePage';
 import ChatPage from './pages/ChatPage';
 import JournalPage from './pages/JournalPage';
@@ -27,7 +31,8 @@ function AppRoutes() {
           />
         </div>
         {/* Loading content */}
-        <div className="relative z-10 flex flex-col items-center gap-4">
+        <div className="relative z-10 flex flex-col items-center gap-6">
+          <BrandLogo size="md" showText={true} />
           <div className="flex gap-1.5">
             {[0, 1, 2].map((i) => (
               <div
@@ -40,7 +45,6 @@ function AppRoutes() {
               />
             ))}
           </div>
-          <p className="text-white/60 text-sm font-light tracking-wide">Loading...</p>
         </div>
         <style>{`
           @keyframes loadingDot {
@@ -71,6 +75,14 @@ function AppRoutes() {
           element={isAuthenticated ? <MoodCheckInPage /> : <EntryPage />}
         />
         <Route
+          path="/mood-transition"
+          element={isAuthenticated ? <MoodTransitionPage /> : <EntryPage />}
+        />
+        <Route
+          path="/mood-skip"
+          element={isAuthenticated ? <MoodSkipPage /> : <EntryPage />}
+        />
+        <Route
           path="/home"
           element={isAuthenticated ? <HomePage /> : <EntryPage />}
         />
@@ -90,6 +102,11 @@ function AppRoutes() {
           path="/auth"
           element={isAuthenticated ? <WelcomePage /> : <AuthPage />}
         />
+        {/* /app route for installed PWAs - bypasses EntryPage gate */}
+        <Route
+          path="/app"
+          element={isAuthenticated ? <WelcomePage /> : <AuthPage />}
+        />
         <Route
           path="/"
           element={isAuthenticated ? <WelcomePage /> : <EntryPage />}
@@ -103,11 +120,13 @@ function AppRoutes() {
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
 

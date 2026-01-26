@@ -2,24 +2,105 @@ import { useState, useEffect, useRef } from 'react';
 import type { Message, Sender } from './types';
 import { sendMessage } from '../../services/api';
 import { getLatestMoodCheckIn, formatMoodContext } from '../../utils/moodUtils';
+import { useLanguage } from '../../i18n/useLanguage';
+
+const CHAT_STORAGE_KEY = 'mindease_chat_messages';
+const MAX_HISTORY_MESSAGES = 50; // Increased from 10 to allow longer conversations
+
+// Load messages from localStorage
+const loadMessagesFromStorage = (): Message[] => {
+  try {
+    const stored = localStorage.getItem(CHAT_STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Convert timestamp strings back to Date objects
+      return parsed.map((msg: Message) => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp),
+      }));
+    }
+  } catch (error) {
+    console.error('Error loading chat from storage:', error);
+  }
+  return [];
+};
+
+// Save messages to localStorage
+const saveMessagesToStorage = (messages: Message[]) => {
+  try {
+    // Only save if there are messages beyond the welcome message
+    const messagesToSave = messages.filter(msg => msg.id !== 'welcome-1');
+    if (messagesToSave.length > 0) {
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+    } else {
+      // Clear storage if only welcome message exists
+      localStorage.removeItem(CHAT_STORAGE_KEY);
+    }
+  } catch (error) {
+    console.error('Error saving chat to storage:', error);
+  }
+};
 
 export function useChat() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { language } = useLanguage();
+  const [messages, setMessages] = useState<Message[]>(() => {
+    // Try to load saved messages first
+    const savedMessages = loadMessagesFromStorage();
+    if (savedMessages.length > 0) {
+      return savedMessages;
+    }
+    // Otherwise, return empty array (welcome message will be added in useEffect)
+    return [];
+  });
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const messagesRef = useRef<Message[]>([]);
+  const messagesRef = useRef<Message[]>(messages);
+
+  // Update messagesRef when messages change
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   useEffect(() => {
+    // Get welcome message based on language
+    const welcomeText = language === 'pt'
+      ? "Olá. Sou a Serenity — estou aqui sempre que precisares de um momento de calma ou apenas de alguém com quem conversar. Não há pressão aqui. O que tens em mente?"
+      : "Hi there. I'm Serenity — I'm here whenever you need a moment of calm or just someone to talk to. There's no pressure here. What's on your mind?";
+    
     const welcomeMessage: Message = {
       id: 'welcome-1',
-      text: "Hi there. I'm Serenity — I'm here whenever you need a moment of calm or just someone to talk to. There's no pressure here. What's on your mind?",
+      text: welcomeText,
       sender: 'serenity' as Sender,
       timestamp: new Date(),
     };
-    setMessages([welcomeMessage]);
-    messagesRef.current = [welcomeMessage];
-  }, []);
+
+    setMessages((prev) => {
+      // If we have saved messages, update welcome message if it exists
+      const hasWelcome = prev.some(msg => msg.id === 'welcome-1');
+      if (hasWelcome) {
+        // Update welcome message text if language changed
+        return prev.map(msg => 
+          msg.id === 'welcome-1' ? welcomeMessage : msg
+        );
+      } else {
+        // If no saved messages, start with welcome message
+        if (prev.length === 0) {
+          return [welcomeMessage];
+        } else {
+          // Prepend welcome to existing saved messages
+          return [welcomeMessage, ...prev];
+        }
+      }
+    });
+  }, [language]);
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0) {
+      saveMessagesToStorage(messages);
+    }
+  }, [messages]);
 
   const handleSend = async (text: string) => {
     const userMessage: Message = {
@@ -47,9 +128,8 @@ export function useChat() {
       setIsLoading(true);
 
       // STEP 1: Build conversation history from previous messages
-      // Limit to last 10 messages to prevent token overflow and control costs
-      // Backend will also enforce this, but doing it here reduces payload size
-      const MAX_HISTORY_MESSAGES = 10;
+      // Increased limit to 50 messages to allow longer conversations within a session
+      // Backend will also enforce its own limit, but we send more for better context
       const conversationHistory = messagesRef.current
         .filter((msg) => msg.id !== 'welcome-1')
         .slice(-MAX_HISTORY_MESSAGES) // Keep only last N messages
@@ -66,9 +146,9 @@ export function useChat() {
       // This converts the mood data into a description the AI can understand
       const moodContext = latestMood ? formatMoodContext(latestMood) : null;
 
-      // STEP 4: Send message with both conversation history and mood context
+      // STEP 4: Send message with conversation history, mood context, and language preference
       // The API will include this context when talking to the AI
-      const response = await sendMessage(text.trim(), conversationHistory, moodContext);
+      const response = await sendMessage(text.trim(), conversationHistory, moodContext, language);
 
       // Calculate how long the API call took
       const apiCallTime = Date.now() - startTime;
@@ -96,6 +176,8 @@ export function useChat() {
       setMessages((prev) => {
         const updated = [...prev, serenityMessage];
         messagesRef.current = updated;
+        // Save to localStorage (handled by useEffect, but ensure it's saved)
+        saveMessagesToStorage(updated);
         return updated;
       });
     } catch (err) {
