@@ -47,6 +47,15 @@ app.use(
 
 app.use(express.json());
 
+// Health check endpoint for Render/deployment monitoring
+app.get("/health", (req, res) => {
+  res.status(200).json({ 
+    status: "ok", 
+    service: "MindEase API",
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.get("/cors-test", (req, res) => {
   res.json({ ok: true });
 });
