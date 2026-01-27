@@ -518,7 +518,7 @@ export default function EntryPage() {
             
             return (
               <div
-                className="w-full max-w-xs mt-2 p-5 rounded-xl border text-center"
+                className="w-full max-w-xs mt-2 p-5 rounded-xl border"
                 style={{
                   background: 'linear-gradient(135deg, hsl(150 50% 50% / 0.15) 0%, hsl(150 50% 50% / 0.08) 100%)',
                   borderColor: 'rgba(255, 255, 255, 0.2)',
@@ -528,7 +528,7 @@ export default function EntryPage() {
               >
                 <div className="flex flex-col items-center w-full">
                   <span className="text-3xl mb-3">{instructions.icon}</span>
-                  <h3 className="text-sm font-medium text-white/90 mb-4 w-full text-center">
+                  <h3 className="text-sm font-medium text-white/90 mb-4 text-center">
                     {t('howToInstall')}
                   </h3>
                   <ol className="space-y-3 text-xs text-white/70 font-light leading-relaxed w-full mb-5">
@@ -543,9 +543,9 @@ export default function EntryPage() {
                     onClick={() => setShowInstallInstructions(false)}
                     className="w-full px-4 py-2.5 text-sm text-white font-medium rounded-lg transition-all hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-green-500/50 active:scale-[0.98]"
                     style={{
-                      background: 'linear-gradient(135deg, hsl(150 50% 50% / 0.4) 0%, hsl(150 50% 50% / 0.3) 100%)',
-                      border: '1px solid rgba(255, 255, 255, 0.25)',
-                      boxShadow: '0 2px 12px hsl(150 50% 50% / 0.2)',
+                      background: 'linear-gradient(135deg, hsl(150 50% 50% / 0.5) 0%, hsl(150 50% 50% / 0.4) 100%)',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      boxShadow: '0 2px 12px hsl(150 50% 50% / 0.3)',
                     }}
                   >
                     {t('gotIt')}
