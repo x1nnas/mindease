@@ -35,6 +35,15 @@ export default function AuthPage() {
     e.preventDefault();
     e.stopPropagation();
     
+    console.log('AuthPage: Form submitted', {
+      isLogin,
+      email: email.substring(0, 5) + '...',
+      hasPassword: !!password,
+      hasFirstName: !!firstName,
+      isLoading,
+      isTransitioning,
+    });
+    
     // Clear any previous errors
     setError(null);
     
@@ -273,7 +282,22 @@ export default function AuthPage() {
                 <button
                   type="submit"
                   disabled={isLoading || isTransitioning}
-                  className="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white font-medium rounded-xl hover:from-green-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-500/20"
+                  onClick={(e) => {
+                    // Debug logging for mobile
+                    console.log('AuthPage: Button clicked/touched', {
+                      isLoading,
+                      isTransitioning,
+                      disabled: e.currentTarget.disabled,
+                    });
+                  }}
+                  className="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white font-medium rounded-xl hover:from-green-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-500/20 active:scale-[0.98]"
+                  style={{
+                    touchAction: 'manipulation',
+                    WebkitTapHighlightColor: 'transparent',
+                    WebkitUserSelect: 'none',
+                    userSelect: 'none',
+                    cursor: (isLoading || isTransitioning) ? 'not-allowed' : 'pointer',
+                  }}
                 >
                   {isLoading ? t('pleaseWait') : isLogin ? t('signIn') : t('startJourney')}
                 </button>
