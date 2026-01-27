@@ -14,6 +14,7 @@ export default function AuthPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Animate in if coming from EntryPage
@@ -25,13 +26,44 @@ export default function AuthPage() {
     }
   }, [isEntering]);
 
+  // Clear error when switching between login/register
+  useEffect(() => {
+    setError(null);
+  }, [isLogin]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    
+    // Clear any previous errors
+    setError(null);
+    
+    // Basic validation
+    if (!email.trim() || !password.trim()) {
+      setError(t('pleaseFillAllFields') || 'Please fill in all fields');
+      return;
+    }
+    
+    if (!isLogin && !firstName.trim()) {
+      setError(t('pleaseFillAllFields') || 'Please fill in all fields');
+      return;
+    }
+    
+    if (password.length < 8) {
+      setError(t('passwordTooShort') || 'Password must be at least 8 characters');
+      return;
+    }
+
     try {
+      console.log('AuthPage: Starting', isLogin ? 'login' : 'registration');
+      console.log('AuthPage: API URL:', import.meta.env.VITE_API_URL);
+      
       if (isLogin) {
         await login(email, password);
+        console.log('AuthPage: Login successful');
       } else {
         await register(email, password);
+        console.log('AuthPage: Registration successful');
         // Store firstName in localStorage for WelcomePage
         if (firstName.trim()) {
           const storedUser = localStorage.getItem('user');
@@ -50,8 +82,11 @@ export default function AuthPage() {
         }
       }
     } catch (error) {
-      // Error handling is done in the context
-      console.error('Auth error:', error);
+      console.error('AuthPage: Auth error:', error);
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : (isLogin ? 'Login failed. Please try again.' : 'Registration failed. Please try again.');
+      setError(errorMessage);
     }
   };
 
@@ -143,7 +178,11 @@ export default function AuthPage() {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form 
+              onSubmit={handleSubmit} 
+              className="space-y-5"
+              noValidate
+            >
               {/* First Name - Register only */}
               <div 
                 className={`overflow-hidden transition-all duration-300 ease-in-out ${
@@ -210,6 +249,16 @@ export default function AuthPage() {
                   minLength={8}
                 />
               </div>
+
+              {/* Error Message */}
+              {error && (
+                <div 
+                  className="mt-4 p-3 bg-red-500/20 border border-red-500/40 rounded-xl text-sm text-red-200"
+                  role="alert"
+                >
+                  {error}
+                </div>
+              )}
 
               {/* Submit Button */}
               <div 

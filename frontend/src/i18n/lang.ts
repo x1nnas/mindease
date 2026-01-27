@@ -20,6 +20,8 @@ export const copy = {
     continueJourney: "Continue your journey to inner peace",
     beginPath: "Begin your path to emotional wellness",
     dataSafe: "Your data is safe and private with us",
+    pleaseFillAllFields: "Please fill in all fields",
+    passwordTooShort: "Password must be at least 8 characters",
     
     // Entry/Welcome
     welcomeToMindEase: "Welcome to MindEase",
@@ -154,6 +156,8 @@ export const copy = {
     continueJourney: "Continua a tua jornada para a paz interior",
     beginPath: "Inicia o teu caminho para o bem-estar emocional",
     dataSafe: "Os teus dados estão seguros e privados connosco",
+    pleaseFillAllFields: "Por favor, preenche todos os campos",
+    passwordTooShort: "A palavra-passe deve ter pelo menos 8 caracteres",
     
     // Entry/Welcome
     welcomeToMindEase: "Bem-vindo ao MindEase",
