@@ -6,6 +6,12 @@ export const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN || '';
 function validateEnv(): void {
   const url = import.meta.env.VITE_API_URL;
   const isProduction = import.meta.env.PROD;
+  const isBuild = import.meta.env.MODE === 'production' && typeof window === 'undefined';
+  
+  // During build time, don't validate (Vite build process)
+  if (isBuild) {
+    return;
+  }
   
   // Only warn in production - development default is fine
   if (!url && isProduction) {
@@ -25,7 +31,11 @@ function validateEnv(): void {
   if (url.trim() === '') {
     console.error('❌ ERROR: VITE_API_URL is empty');
     console.error('💡 Please set a valid URL in frontend/.env: VITE_API_URL=http://localhost:5050');
-    throw new Error('VITE_API_URL environment variable is empty');
+    // Don't throw during build - just log
+    if (!isBuild) {
+      throw new Error('VITE_API_URL environment variable is empty');
+    }
+    return;
   }
 
   try {
@@ -33,7 +43,10 @@ function validateEnv(): void {
   } catch {
     console.error(`❌ ERROR: Invalid VITE_API_URL format: ${url}`);
     console.error('💡 VITE_API_URL must be a valid URL (e.g., http://localhost:5050)');
-    throw new Error('Invalid VITE_API_URL format');
+    // Don't throw during build - just log
+    if (!isBuild) {
+      throw new Error('Invalid VITE_API_URL format');
+    }
   }
 }
 
