@@ -2,6 +2,8 @@ function getRequiredEnvVars() {
   return {
     MONGO_URI: process.env.MONGO_URI,
     JWT_SECRET: process.env.JWT_SECRET,
+    // OPENAI_API_KEY is optional in development (allows mock responses for testing)
+    // Required in production if AI_ENABLED=true
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   };
 }
@@ -25,6 +27,12 @@ export function validateEnv(): void {
 
   for (const [key, value] of Object.entries(requiredEnvVars)) {
     if (!value || value.trim() === '') {
+      // OPENAI_API_KEY is optional in development
+      if (key === 'OPENAI_API_KEY' && process.env.NODE_ENV !== 'production') {
+        console.warn('⚠️  WARNING: OPENAI_API_KEY not set. AI chatbot will use mock responses.');
+        console.warn('   To enable real AI: Set OPENAI_API_KEY and AI_ENABLED=true in .env');
+        continue;
+      }
       missing.push(key);
     }
   }
@@ -39,6 +47,19 @@ export function validateEnv(): void {
   }
 
   console.log('✅ All required environment variables are set');
+  
+  // Log AI status
+  const aiEnabled = process.env.AI_ENABLED === 'true';
+  const hasApiKey = !!process.env.OPENAI_API_KEY;
+  if (aiEnabled && hasApiKey) {
+    console.log('🤖 AI Chatbot: ENABLED (using OpenAI API)');
+  } else if (process.env.NODE_ENV !== 'production') {
+    console.log('🤖 AI Chatbot: Using mock responses (set AI_ENABLED=true and OPENAI_API_KEY to enable real AI)');
+  } else if (!aiEnabled) {
+    console.log('🤖 AI Chatbot: DISABLED (set AI_ENABLED=true to enable)');
+  } else {
+    console.warn('⚠️  AI Chatbot: AI_ENABLED=true but OPENAI_API_KEY not set');
+  }
 }
 
 export function getEnv() {

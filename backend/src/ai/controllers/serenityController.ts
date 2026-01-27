@@ -56,9 +56,13 @@ export const serenityChat = async (
       return;
     }
 
-    // Feature flag check - only show offline message in production
+    // Feature flag check - only show offline message in production when explicitly disabled
     // In development, let the service handle mock responses
-    if (process.env.NODE_ENV === "production" && process.env.AI_ENABLED !== "true") {
+    // For testing: Set AI_ENABLED=true to enable real AI responses
+    const isProduction = process.env.NODE_ENV === "production";
+    const aiEnabled = process.env.AI_ENABLED === "true";
+    
+    if (isProduction && !aiEnabled) {
       const isGuest = !req.user;
       const userId =
         !isGuest && req.user && typeof req.user === "object"
