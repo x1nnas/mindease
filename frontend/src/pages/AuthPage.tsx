@@ -149,7 +149,7 @@ export default function AuthPage() {
                 className={`overflow-hidden transition-all duration-300 ease-in-out ${
                   isLogin 
                     ? 'max-h-0 opacity-0 mt-0 mb-0' 
-                    : 'max-h-24 opacity-100 mt-0 mb-0'
+                    : 'max-h-24 opacity-100 mt-0 mb-5'
                 } ${isTransitioning ? 'opacity-0' : ''}`}
               >
                 <div>

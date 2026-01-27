@@ -47,13 +47,28 @@ export default function EntryPage() {
   }, []);
 
   const handleInstallClick = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
+    if (!deferredPrompt) {
+      // If beforeinstallprompt hasn't fired (iOS Safari, or not supported)
+      // Show instructions to user
+      alert(t('useBrowserMenu'));
+      return;
+    }
+
+    try {
+      // Show the install prompt
+      await deferredPrompt.prompt();
+      
+      // Wait for user's choice
       const { outcome } = await deferredPrompt.userChoice;
+      
       if (outcome === "accepted") {
         setDeferredPrompt(null);
         setIsInstallable(false);
       }
+    } catch (error) {
+      console.error('Error showing install prompt:', error);
+      // Fallback: show instructions
+      alert(t('useBrowserMenu'));
     }
   };
 
