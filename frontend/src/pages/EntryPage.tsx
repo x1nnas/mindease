@@ -24,12 +24,66 @@ export default function EntryPage() {
   const { t } = useLanguage();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
+  const [showInstallInstructions, setShowInstallInstructions] = useState(false);
   
   // Get the current URL for QR code
   const appUrl = typeof window !== "undefined" ? window.location.origin : "";
   
   // Testing bypass: Allow desktop access with ?desktop=true query parameter
   const allowDesktop = searchParams.get('desktop') === 'true' || import.meta.env.DEV;
+
+  // Detect browser and OS for platform-specific instructions
+  const getInstallInstructions = () => {
+    if (typeof window === 'undefined') return null;
+    
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isIOS = /iphone|ipad|ipod/.test(userAgent);
+    const isAndroid = /android/.test(userAgent);
+    const isBrave = (navigator as { brave?: { isBrave: boolean } }).brave?.isBrave || false;
+    const isChrome = /chrome/.test(userAgent) && !/edge|opr|brave/.test(userAgent);
+    const isFirefox = /firefox/.test(userAgent);
+    
+    if (isIOS) {
+      return {
+        steps: [
+          t('iosStep1'),
+          t('iosStep2'),
+          t('iosStep3'),
+        ],
+        icon: '📱'
+      };
+    } else if (isAndroid) {
+      if (isBrave || isChrome) {
+        return {
+          steps: [
+            t('androidBraveStep1'),
+            t('androidBraveStep2'),
+            t('androidBraveStep3'),
+          ],
+          icon: '📲'
+        };
+      } else if (isFirefox) {
+        return {
+          steps: [
+            t('androidFirefoxStep1'),
+            t('androidFirefoxStep2'),
+            t('androidFirefoxStep3'),
+          ],
+          icon: '📲'
+        };
+      }
+    }
+    
+    // Generic fallback
+    return {
+      steps: [
+        t('genericStep1'),
+        t('genericStep2'),
+        t('genericStep3'),
+      ],
+      icon: '📱'
+    };
+  };
 
   useEffect(() => {
     // Listen for the beforeinstallprompt event
@@ -48,9 +102,9 @@ export default function EntryPage() {
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
-      // If beforeinstallprompt hasn't fired (iOS Safari, or not supported)
-      // Show instructions to user
-      alert(t('useBrowserMenu'));
+      // If beforeinstallprompt hasn't fired (iOS Safari, Brave, or not supported)
+      // Show inline instructions instead of alert
+      setShowInstallInstructions(true);
       return;
     }
 
@@ -64,11 +118,12 @@ export default function EntryPage() {
       if (outcome === "accepted") {
         setDeferredPrompt(null);
         setIsInstallable(false);
+        setShowInstallInstructions(false);
       }
     } catch (error) {
       console.error('Error showing install prompt:', error);
-      // Fallback: show instructions
-      alert(t('useBrowserMenu'));
+      // Fallback: show inline instructions
+      setShowInstallInstructions(true);
     }
   };
 
@@ -441,18 +496,61 @@ export default function EntryPage() {
           </button>
           
           {/* Hint text */}
-          <p
-            className="text-xs text-white/50 font-light px-4 text-center leading-relaxed"
-            style={{ 
-              animation: 'fadeIn 0.6s ease-out 0.7s',
-              animationFillMode: 'both',
-            }}
-          >
-            {isInstallable 
-              ? t('oneTapToAdd')
-              : t('useBrowserMenu')
-            }
-          </p>
+          {!showInstallInstructions && (
+            <p
+              className="text-xs text-white/50 font-light px-4 text-center leading-relaxed"
+              style={{ 
+                animation: 'fadeIn 0.6s ease-out 0.7s',
+                animationFillMode: 'both',
+              }}
+            >
+              {isInstallable 
+                ? t('oneTapToAdd')
+                : t('useBrowserMenu')
+              }
+            </p>
+          )}
+
+          {/* Install Instructions Panel */}
+          {showInstallInstructions && (() => {
+            const instructions = getInstallInstructions();
+            if (!instructions) return null;
+            
+            return (
+              <div
+                className="w-full max-w-xs mt-2 p-4 rounded-xl border"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(150 50% 50% / 0.15) 0%, hsl(150 50% 50% / 0.08) 100%)',
+                  borderColor: 'rgba(255, 255, 255, 0.2)',
+                  animation: 'fadeInUp 0.4s ease-out',
+                  animationFillMode: 'both',
+                }}
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">{instructions.icon}</span>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-medium text-white/90 mb-3">
+                      {t('howToInstall')}
+                    </h3>
+                    <ol className="space-y-2 text-xs text-white/70 font-light leading-relaxed">
+                      {instructions.steps.map((step, index) => (
+                        <li key={index} className="flex gap-2">
+                          <span className="text-green-400/80 font-medium flex-shrink-0">{index + 1}.</span>
+                          <span>{step}</span>
+                        </li>
+                      ))}
+                    </ol>
+                    <button
+                      onClick={() => setShowInstallInstructions(false)}
+                      className="mt-4 text-xs text-white/60 hover:text-white/80 transition-colors font-light underline-offset-4 hover:underline"
+                    >
+                      {t('gotIt')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
         
         {/* Continue without installing */}
