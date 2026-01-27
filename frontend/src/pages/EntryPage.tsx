@@ -528,20 +528,20 @@ export default function EntryPage() {
               >
                 <div className="flex flex-col items-center">
                   <span className="text-3xl mb-3">{instructions.icon}</span>
-                  <h3 className="text-sm font-medium text-white/90 mb-4 text-center">
+                  <h3 className="text-sm font-medium text-white/90 mb-4 text-center w-full">
                     {t('howToInstall')}
                   </h3>
                   <ol className="space-y-3 text-xs text-white/70 font-light leading-relaxed w-full mb-5">
                     {instructions.steps.map((step, index) => (
-                      <li key={index} className="flex gap-2.5 text-left">
+                      <li key={index} className="flex gap-2.5">
                         <span className="text-green-400/80 font-medium shrink-0">{index + 1}.</span>
-                        <span className="flex-1">{step}</span>
+                        <span className="flex-1 text-left">{step}</span>
                       </li>
                     ))}
                   </ol>
                   <button
                     onClick={() => setShowInstallInstructions(false)}
-                    className="w-full px-4 py-2.5 text-sm text-white font-medium rounded-lg transition-all hover:opacity-90 shadow-lg"
+                    className="w-full px-4 py-2.5 text-sm text-white font-medium rounded-lg transition-all hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-green-500/50"
                     style={{
                       background: 'linear-gradient(135deg, hsl(150 50% 50% / 0.4) 0%, hsl(150 50% 50% / 0.3) 100%)',
                       border: '1px solid rgba(255, 255, 255, 0.25)',
