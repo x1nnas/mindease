@@ -10,6 +10,7 @@ function getRequiredEnvVars() {
 
 function getOptionalEnvVars() {
   return {
+    // Render sets PORT automatically - use it if available, otherwise default to 5050
     PORT: process.env.PORT || '5050',
     FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
     // AI API Limits (for cost control - $8/month budget)

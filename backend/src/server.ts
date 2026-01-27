@@ -68,15 +68,24 @@ const PORT = env.PORT;
 // Connect to MongoDB and start server
 const startServer = async (): Promise<void> => {
   try {
-    await connectDB();
-    // Listen on 0.0.0.0 for Render/deployment compatibility
-    // Render requires binding to 0.0.0.0, not just localhost
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`MindEase backend running on port ${PORT}`);
-      console.log(`Server accessible at http://0.0.0.0:${PORT}`);
+    // Start server first, then connect to DB
+    // This ensures the server is accessible even if DB connection takes time
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`✅ MindEase backend running on port ${PORT}`);
+      console.log(`🌐 Server accessible at http://0.0.0.0:${PORT}`);
+      console.log(`📡 Health check available at http://0.0.0.0:${PORT}/health`);
+    });
+
+    // Connect to MongoDB (non-blocking)
+    // Server will still respond to health checks even if DB is connecting
+    connectDB().catch((error) => {
+      console.error("⚠️  MongoDB connection failed:", error);
+      console.error("💡 Server is running but database features may be unavailable");
+      console.error("💡 Check your MONGO_URI environment variable");
+      // Don't exit - allow server to run for health checks
     });
   } catch (error) {
-    console.error("Failed to start server:", error);
+    console.error("❌ Failed to start server:", error);
     process.exit(1);
   }
 };
