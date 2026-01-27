@@ -57,11 +57,14 @@ export default function AuthPage() {
     try {
       console.log('AuthPage: Starting', isLogin ? 'login' : 'registration');
       console.log('AuthPage: API URL:', import.meta.env.VITE_API_URL);
+      console.log('AuthPage: Email:', email);
+      console.log('AuthPage: Is mobile:', /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
       
       if (isLogin) {
         await login(email, password);
         console.log('AuthPage: Login successful');
       } else {
+        console.log('AuthPage: Calling register API...');
         await register(email, password);
         console.log('AuthPage: Registration successful');
         // Store firstName in localStorage for WelcomePage
