@@ -288,7 +288,34 @@ export default function AuthPage() {
                       isLoading,
                       isTransitioning,
                       disabled: e.currentTarget.disabled,
+                      type: e.type,
                     });
+                    
+                    // If button is disabled, prevent any action
+                    if (isLoading || isTransitioning) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
+                    
+                    // Ensure form submission works on mobile
+                    // Native form submission should handle this, but this is a fallback
+                    const form = e.currentTarget.closest('form');
+                    if (form && !form.checkValidity()) {
+                      // If form is invalid, let browser show validation
+                      return;
+                    }
+                  }}
+                  onTouchStart={(e) => {
+                    // Ensure touch events are captured
+                    console.log('AuthPage: Button touch start');
+                    if (!isLoading && !isTransitioning) {
+                      e.currentTarget.style.transform = 'scale(0.98)';
+                    }
+                  }}
+                  onTouchEnd={(e) => {
+                    console.log('AuthPage: Button touch end');
+                    e.currentTarget.style.transform = 'scale(1)';
                   }}
                   className="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white font-medium rounded-xl hover:from-green-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-500/20 active:scale-[0.98]"
                   style={{
@@ -297,6 +324,9 @@ export default function AuthPage() {
                     WebkitUserSelect: 'none',
                     userSelect: 'none',
                     cursor: (isLoading || isTransitioning) ? 'not-allowed' : 'pointer',
+                    minHeight: '44px', // iOS recommended touch target size
+                    position: 'relative',
+                    zIndex: 1,
                   }}
                 >
                   {isLoading ? t('pleaseWait') : isLogin ? t('signIn') : t('startJourney')}
