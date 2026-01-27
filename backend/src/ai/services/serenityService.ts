@@ -24,13 +24,14 @@ let openaiClient: OpenAI | null = null;
 
 function getOpenAIClient(): OpenAI {
   if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY.trim() === '') {
-    throw new Error("OPENAI_API_KEY is not configured. Please set it in your .env file.");
+    throw new Error("OPENAI_API_KEY is not configured. Please set it in your .env file. For testing, you can use mock responses by leaving AI_ENABLED unset in development.");
   }
 
   if (!openaiClient) {
     openaiClient = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
+    console.log("✅ OpenAI client initialized successfully");
   }
 
   return openaiClient;
