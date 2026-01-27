@@ -518,7 +518,7 @@ export default function EntryPage() {
             
             return (
               <div
-                className="w-full max-w-xs mt-2 p-4 rounded-xl border"
+                className="w-full max-w-xs mt-2 p-5 rounded-xl border text-center"
                 style={{
                   background: 'linear-gradient(135deg, hsl(150 50% 50% / 0.15) 0%, hsl(150 50% 50% / 0.08) 100%)',
                   borderColor: 'rgba(255, 255, 255, 0.2)',
@@ -526,23 +526,27 @@ export default function EntryPage() {
                   animationFillMode: 'both',
                 }}
               >
-                <div className="flex items-start gap-3">
-                  <span className="text-2xl">{instructions.icon}</span>
-                  <div className="flex-1">
-                    <h3 className="text-sm font-medium text-white/90 mb-3">
+                <div className="flex flex-col items-center gap-4">
+                  <span className="text-3xl">{instructions.icon}</span>
+                  <div className="w-full">
+                    <h3 className="text-sm font-medium text-white/90 mb-4">
                       {t('howToInstall')}
                     </h3>
-                    <ol className="space-y-2 text-xs text-white/70 font-light leading-relaxed">
+                    <ol className="space-y-3 text-xs text-white/70 font-light leading-relaxed text-left">
                       {instructions.steps.map((step, index) => (
-                        <li key={index} className="flex gap-2">
-                          <span className="text-green-400/80 font-medium flex-shrink-0">{index + 1}.</span>
-                          <span>{step}</span>
+                        <li key={index} className="flex gap-2.5">
+                          <span className="text-green-400/80 font-medium shrink-0">{index + 1}.</span>
+                          <span className="flex-1">{step}</span>
                         </li>
                       ))}
                     </ol>
                     <button
                       onClick={() => setShowInstallInstructions(false)}
-                      className="mt-4 text-xs text-white/60 hover:text-white/80 transition-colors font-light underline-offset-4 hover:underline"
+                      className="mt-5 w-full px-4 py-2.5 text-sm text-white font-medium rounded-lg transition-all hover:opacity-90"
+                      style={{
+                        background: 'linear-gradient(135deg, hsl(150 50% 50% / 0.3) 0%, hsl(150 50% 50% / 0.2) 100%)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                      }}
                     >
                       {t('gotIt')}
                     </button>
