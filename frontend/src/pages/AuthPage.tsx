@@ -194,6 +194,10 @@ export default function AuthPage() {
               onSubmit={handleSubmit} 
               className="space-y-5"
               noValidate
+              style={{
+                position: 'relative',
+                zIndex: 1,
+              }}
             >
               {/* First Name - Register only */}
               <div 
