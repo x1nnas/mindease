@@ -6,19 +6,14 @@ export const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN || '';
 function validateEnv(): void {
   const url = import.meta.env.VITE_API_URL;
   const isProduction = import.meta.env.PROD;
-  const isBuild = import.meta.env.MODE === 'production' && typeof window === 'undefined';
-  
-  // During build time, don't validate (Vite build process)
-  if (isBuild) {
-    return;
-  }
   
   // Only warn in production - development default is fine
+  // Never throw errors - let the app handle missing/invalid URLs gracefully
   if (!url && isProduction) {
     console.warn(
       '⚠️  WARNING: VITE_API_URL not set in .env file.\n' +
       '   Using default: http://localhost:5050\n' +
-      '   For production, set VITE_API_URL in frontend/.env'
+      '   For production, set VITE_API_URL in Vercel environment variables'
     );
     return;
   }
@@ -30,11 +25,8 @@ function validateEnv(): void {
 
   if (url.trim() === '') {
     console.error('❌ ERROR: VITE_API_URL is empty');
-    console.error('💡 Please set a valid URL in frontend/.env: VITE_API_URL=http://localhost:5050');
-    // Don't throw during build - just log
-    if (!isBuild) {
-      throw new Error('VITE_API_URL environment variable is empty');
-    }
+    console.error('💡 Please set a valid URL in Vercel environment variables: VITE_API_URL=https://your-api-url.com');
+    // Don't throw - app will use default
     return;
   }
 
@@ -42,11 +34,8 @@ function validateEnv(): void {
     new URL(url);
   } catch {
     console.error(`❌ ERROR: Invalid VITE_API_URL format: ${url}`);
-    console.error('💡 VITE_API_URL must be a valid URL (e.g., http://localhost:5050)');
-    // Don't throw during build - just log
-    if (!isBuild) {
-      throw new Error('Invalid VITE_API_URL format');
-    }
+    console.error('💡 VITE_API_URL must be a valid URL (e.g., https://your-api-url.com)');
+    // Don't throw - app will use default
   }
 }
 
