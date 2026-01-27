@@ -69,8 +69,11 @@ const PORT = env.PORT;
 const startServer = async (): Promise<void> => {
   try {
     await connectDB();
-    app.listen(PORT, () => {
+    // Listen on 0.0.0.0 for Render/deployment compatibility
+    // Render requires binding to 0.0.0.0, not just localhost
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`MindEase backend running on port ${PORT}`);
+      console.log(`Server accessible at http://0.0.0.0:${PORT}`);
     });
   } catch (error) {
     console.error("Failed to start server:", error);

@@ -269,10 +269,18 @@ export default function AuthPage() {
               {/* Error Message */}
               {error && (
                 <div 
-                  className="mt-4 p-3 bg-red-500/20 border border-red-500/40 rounded-xl text-sm text-red-200"
+                  className="mt-4 p-3 rounded-xl text-sm text-white/90"
                   role="alert"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(150 50% 50% / 0.15) 0%, hsl(150 50% 50% / 0.08) 100%)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    boxShadow: '0 2px 12px hsl(150 50% 50% / 0.2)',
+                  }}
                 >
-                  {error}
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-400/80 flex-shrink-0 mt-0.5">⚠️</span>
+                    <span className="flex-1">{error}</span>
+                  </div>
                 </div>
               )}
 
