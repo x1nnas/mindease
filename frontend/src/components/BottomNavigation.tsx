@@ -22,6 +22,7 @@ const BottomNavigation = () => {
   // Check if current page should hide navigation
   // Special case: mood-check-in only hides nav if coming from welcome page
   const isMoodCheckIn = location.pathname === '/mood-check-in';
+  const isHomePage = location.pathname === '/home';
   const isFromWelcome = location.state?.fromWelcome || 
                         document.referrer.includes('/welcome') ||
                         sessionStorage.getItem('justCompletedWelcome') === 'true';
@@ -48,21 +49,28 @@ const BottomNavigation = () => {
       return;
     }
 
-    // If coming from welcome page (but not to mood-check-in), wait for transition to complete
-    // WelcomePage shows for 3 seconds, then fades for 0.7s, then navigates
-    if (isFromWelcome) {
-      // Wait for welcome page transition to complete (3s display + 0.7s fade)
-      const timer = setTimeout(() => {
-        setShouldShow(true);
-        sessionStorage.removeItem('justCompletedWelcome');
-      }, 3800); // Slightly after welcome transition completes
+    // Special handling for home page - show with smooth animation
+    if (isHomePage) {
+      // If coming from welcome page, wait for welcome transition to complete
+      // WelcomePage shows for 3 seconds, then fades for 0.7s, then navigates
+      if (isFromWelcome) {
+        // Wait for welcome page transition to complete (3s display + 0.7s fade + navigation)
+        const timer = setTimeout(() => {
+          setShouldShow(true);
+          sessionStorage.removeItem('justCompletedWelcome');
+        }, 4000); // After welcome transition and navigation completes
 
-      return () => clearTimeout(timer);
-    } else {
-      // For other pages, show immediately but with animation
-      setShouldShow(true);
+        return () => clearTimeout(timer);
+      } else {
+        // Coming to home from other pages, show with animation
+        setShouldShow(true);
+        return;
+      }
     }
-  }, [isAuthenticated, shouldHide, location.pathname, location.state, isMoodCheckIn, isFromWelcome]);
+
+    // For other pages (chat, journal), show immediately but with animation
+    setShouldShow(true);
+  }, [isAuthenticated, shouldHide, location.pathname, location.state, isMoodCheckIn, isFromWelcome, isHomePage]);
 
   // Don't show navigation if not authenticated or on hidden pages
   if (!isAuthenticated || shouldHide || !shouldShow) {
