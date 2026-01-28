@@ -56,32 +56,9 @@ export const serenityChat = async (
       return;
     }
 
-    // Feature flag check - use mock responses if AI is not enabled
-    // For testing: Set AI_ENABLED=true and OPENAI_API_KEY to enable real AI responses
-    // If AI_ENABLED is not set or false, use mock responses (works in both dev and production)
-    const aiEnabled = process.env.AI_ENABLED === "true";
-    const hasApiKey = !!process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== '';
-    
-    // Only show "offline" message if explicitly disabled in production AND no API key
-    // Otherwise, let the service handle it (will use mocks if no API key)
-    const isProduction = process.env.NODE_ENV === "production";
-    if (isProduction && process.env.AI_ENABLED === "false" && !hasApiKey) {
-      const isGuest = !req.user;
-      const userId =
-        !isGuest && req.user && typeof req.user === "object"
-          ? (req.user as any).id ?? (req.user as any)._id ?? null
-          : null;
-
-      res.status(200).json({
-        message: "Serenity reply generated",
-        reply: "Serenity is currently offline while we're improving the app 🌱",
-        meta: {
-          isGuest,
-          userId,
-        },
-      });
-      return;
-    }
+    // Always let the service handle responses
+    // Service will use mock responses if AI_ENABLED is not "true" or if API key is missing
+    // This allows testing with mock responses in production without API key
 
     const isGuest = !req.user;
     const userId =
