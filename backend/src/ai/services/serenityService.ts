@@ -92,16 +92,16 @@ export async function getSerenityReply({
   userId,
   isGuest = false,
 }: SerenityRequest): Promise<SerenityResponse> {
-  // Return mock responses in development when AI is disabled
-  // For testing: Set AI_ENABLED=true in your .env file to use real OpenAI API
-  // If OPENAI_API_KEY is not set, it will throw an error (which is caught and returns fallback)
-  const isDevelopment = process.env.NODE_ENV !== "production";
+  // Return mock responses when AI is disabled or API key is missing
+  // For testing: Set AI_ENABLED=true and OPENAI_API_KEY to use real OpenAI API
   const aiEnabled = process.env.AI_ENABLED === "true";
+  const hasApiKey = !!process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== '';
   
-  // In development: use mock if AI_ENABLED is not explicitly set to "true"
-  // In production: always try to use AI (will fail gracefully if no API key)
-  if (isDevelopment && !aiEnabled) {
-    console.log("🤖 AI Chatbot: Using mock responses (set AI_ENABLED=true to use OpenAI)");
+  // Use mock responses if:
+  // 1. AI_ENABLED is not explicitly set to "true" (works in both dev and production)
+  // 2. OR if AI_ENABLED is true but API key is missing (fallback to mocks)
+  if (!aiEnabled || (aiEnabled && !hasApiKey)) {
+    console.log("🤖 AI Chatbot: Using mock responses (set AI_ENABLED=true and OPENAI_API_KEY to use OpenAI)");
     return {
       reply: getMockResponse(message),
     };
