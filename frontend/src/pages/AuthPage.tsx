@@ -216,6 +216,13 @@ export default function AuthPage() {
                 position: 'relative',
                 zIndex: 1,
               }}
+              onClick={(e) => {
+                // Debug: log form clicks
+                console.log('AuthPage: Form clicked', {
+                  target: (e.target as HTMLElement).tagName,
+                  isLogin,
+                });
+              }}
             >
               {/* First Name - Register only */}
               <div 
