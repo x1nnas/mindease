@@ -104,16 +104,16 @@ export default function HomePage() {
 
           {/* Greeting & Headline */}
           <div
-            className="text-center space-y-4 mb-12"
+            className="text-center space-y-3 mb-8"
             style={{ 
               animation: 'fadeUp 0.8s ease-out 0.2s',
               animationFillMode: 'both',
             }}
           >
-            <p className="text-white/60 text-sm tracking-wide font-light">
+            <p className="text-white/60 text-xs sm:text-sm tracking-wide font-light">
               {getGreeting()}
             </p>
-            <h1 className="text-3xl font-light text-white/90 leading-relaxed tracking-wide">
+            <h1 className="text-2xl sm:text-3xl font-light text-white/90 leading-relaxed tracking-wide">
               {t('thisMomentYours')}
               <br />
               <span className="text-white/70">{t('howCanIHelp')}</span>
@@ -122,7 +122,7 @@ export default function HomePage() {
 
           {/* Primary CTA - Talk to Serenity */}
           <div
-            className="mb-8"
+            className="mb-6"
             style={{ 
               animation: 'fadeUp 0.8s ease-out 0.4s',
               animationFillMode: 'both',
@@ -130,7 +130,7 @@ export default function HomePage() {
           >
             <button
               onClick={handleNavigateToChat}
-              className="w-full group relative overflow-hidden rounded-3xl p-8 transition-all duration-500 hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full group relative overflow-hidden rounded-3xl p-6 sm:p-8 transition-all duration-500 hover:scale-[1.02] active:scale-[0.98]"
               style={{
                 background: "linear-gradient(145deg, hsl(150 50% 50% / 0.2) 0%, hsl(150 50% 50% / 0.08) 100%)",
                 boxShadow: "0 8px 40px hsl(150 50% 50% / 0.15), inset 0 1px 0 hsl(150 50% 50% / 0.2)",
@@ -144,16 +144,16 @@ export default function HomePage() {
                 }}
               />
 
-              <div className="relative flex flex-col items-center gap-4">
+              <div className="relative flex flex-col items-center gap-3">
                 <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center"
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center"
                   style={{
                     background: "linear-gradient(135deg, hsl(150 50% 50% / 0.35) 0%, hsl(150 50% 50% / 0.15) 100%)",
                     boxShadow: "0 4px 24px hsl(150 50% 50% / 0.25)",
                   }}
                 >
                   <svg 
-                    className="w-7 h-7 text-green-400" 
+                    className="w-6 h-6 sm:w-7 sm:h-7 text-green-400" 
                     fill="none" 
                     stroke="currentColor" 
                     viewBox="0 0 24 24"
@@ -167,10 +167,10 @@ export default function HomePage() {
                   </svg>
                 </div>
                 <div className="text-center">
-                  <h2 className="text-xl font-medium text-white/90 mb-1">
+                  <h2 className="text-lg sm:text-xl font-medium text-white/90 mb-1">
                     {t('talkToSerenity')}
                   </h2>
-                  <p className="text-sm text-white/60">
+                  <p className="text-xs sm:text-sm text-white/60">
                     {t('serenityHere')}
                   </p>
                 </div>
@@ -261,14 +261,14 @@ export default function HomePage() {
 
           {/* Watermark Logo with MindEase text */}
           <div
-            className="mt-12 mb-12"
+            className="mt-8 mb-8"
             style={{ 
               animation: 'fadeUp 0.8s ease-out 0.8s',
               animationFillMode: 'both',
-              marginBottom: 'clamp(3rem, 8vh, 4rem)', // Responsive bottom margin for iPhone safe areas
+              marginBottom: 'clamp(2rem, 6vh, 3rem)', // Reduced spacing for better fit
             }}
           >
-            <BrandLogo size="md" showText={true} />
+            <BrandLogo size="sm" showText={true} />
           </div>
         </div>
       </div>

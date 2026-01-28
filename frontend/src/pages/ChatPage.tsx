@@ -111,11 +111,14 @@ export default function ChatPage() {
       <div className="flex-1 flex flex-col relative z-10 overflow-hidden">
         {/* Header */}
         <header
-          className={`px-6 pt-8 pb-4 transition-all duration-700 ease-out ${
+          className={`px-6 pb-4 transition-all duration-700 ease-out ${
             isEntering 
               ? 'opacity-0 transform translate-y-[-20px]' 
               : 'opacity-100 transform translate-y-0'
           }`}
+          style={{
+            paddingTop: 'calc(env(safe-area-inset-top, 0px) + 2rem)',
+          }}
         >
           <div className="flex items-center gap-3">
             <div
