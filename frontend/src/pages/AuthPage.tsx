@@ -332,13 +332,29 @@ export default function AuthPage() {
                   onTouchStart={(e) => {
                     // Ensure touch events are captured
                     console.log('AuthPage: Button touch start');
+                    e.stopPropagation(); // Prevent event bubbling
                     if (!isLoading && !isTransitioning) {
                       e.currentTarget.style.transform = 'scale(0.98)';
+                      e.currentTarget.style.opacity = '0.9';
                     }
                   }}
                   onTouchEnd={(e) => {
                     console.log('AuthPage: Button touch end');
+                    e.stopPropagation(); // Prevent event bubbling
                     e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.opacity = '1';
+                    // Trigger form submission on touch end if not disabled
+                    if (!isLoading && !isTransitioning) {
+                      const form = e.currentTarget.closest('form');
+                      if (form) {
+                        form.requestSubmit();
+                      }
+                    }
+                  }}
+                  onTouchCancel={(e) => {
+                    // Reset styles if touch is cancelled
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.opacity = '1';
                   }}
                   className="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white font-medium rounded-xl hover:from-green-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-500/20 active:scale-[0.98]"
                   style={{

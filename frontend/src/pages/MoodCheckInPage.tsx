@@ -171,9 +171,13 @@ const MoodCheckIn = () => {
       </div>
 
       {/* Content with smooth fade-in */}
-      <main className={`relative z-10 flex flex-col flex-1 items-center justify-between px-4 sm:px-6 py-6 sm:py-12 pb-20 sm:pb-28 transition-opacity duration-700 ease-out overflow-y-auto ${
+      <main className={`relative z-10 flex flex-col flex-1 items-center justify-between px-4 sm:px-6 py-6 sm:py-12 transition-opacity duration-700 ease-out overflow-y-auto ${
         isEntering ? 'opacity-0' : 'opacity-100'
-      }`}>
+      }`}
+      style={{
+        paddingBottom: 'clamp(7rem, 15vh, 9rem)', // Extra padding for bottom navigation
+      }}
+      >
         {/* Loading overlay for initial mood check */}
         {isCheckingMood && (
           <div className="absolute inset-0 flex items-center justify-center bg-[#1a241f]/80 backdrop-blur-sm z-20">
@@ -315,8 +319,8 @@ const MoodCheckIn = () => {
             
             {/* Scale labels */}
             <div className="flex justify-between text-xs text-white/60 uppercase tracking-wider font-light">
-              <span>I'm Not Okay</span>
-              <span>Feeling Great</span>
+              <span>{t('imNotOkay')}</span>
+              <span>{t('feelingGreat')}</span>
             </div>
           </div>
 
