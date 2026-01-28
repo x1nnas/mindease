@@ -261,10 +261,11 @@ export default function HomePage() {
 
           {/* Watermark Logo with MindEase text */}
           <div
-            className="mt-12 mb-8"
+            className="mt-12 mb-12"
             style={{ 
               animation: 'fadeUp 0.8s ease-out 0.8s',
               animationFillMode: 'both',
+              marginBottom: 'clamp(3rem, 8vh, 4rem)', // Responsive bottom margin for iPhone safe areas
             }}
           >
             <BrandLogo size="md" showText={true} />
