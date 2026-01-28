@@ -226,6 +226,8 @@ export default function AuthPage() {
                     onChange={(e) => setFirstName(e.target.value)}
                     className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/30 transition-all"
                     required={!isLogin}
+                    disabled={isLogin}
+                    aria-hidden={isLogin}
                   />
                 </div>
               </div>
@@ -308,6 +310,7 @@ export default function AuthPage() {
                       isTransitioning,
                       disabled: e.currentTarget.disabled,
                       type: e.type,
+                      isLogin,
                     });
                     
                     // If button is disabled, prevent any action
@@ -317,13 +320,8 @@ export default function AuthPage() {
                       return;
                     }
                     
-                    // Ensure form submission works on mobile
-                    // Native form submission should handle this, but this is a fallback
-                    const form = e.currentTarget.closest('form');
-                    if (form && !form.checkValidity()) {
-                      // If form is invalid, let browser show validation
-                      return;
-                    }
+                    // Don't interfere with form submission - let the form handle it
+                    // The form's onSubmit handler will process the request
                   }}
                   onTouchStart={(e) => {
                     // Ensure touch events are captured
