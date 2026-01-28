@@ -225,30 +225,28 @@ export default function AuthPage() {
               }}
             >
               {/* First Name - Register only */}
-              <div 
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                  isLogin 
-                    ? 'max-h-0 opacity-0 mt-0 mb-0' 
-                    : 'max-h-24 opacity-100 mt-0 mb-5'
-                } ${isTransitioning ? 'opacity-0' : ''}`}
-              >
-                <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-white/80 mb-2">
-                    {t('firstName')}
-                  </label>
-                  <input
-                    id="firstName"
-                    type="text"
-                    placeholder={t('firstNamePlaceholder')}
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/30 transition-all"
-                    required={!isLogin}
-                    disabled={isLogin}
-                    aria-hidden={isLogin}
-                  />
+              {!isLogin && (
+                <div 
+                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                    isTransitioning ? 'opacity-0' : 'opacity-100'
+                  } mb-5`}
+                >
+                  <div>
+                    <label htmlFor="firstName" className="block text-sm font-medium text-white/80 mb-2">
+                      {t('firstName')}
+                    </label>
+                    <input
+                      id="firstName"
+                      type="text"
+                      placeholder={t('firstNamePlaceholder')}
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/30 transition-all"
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Email */}
               <div 
