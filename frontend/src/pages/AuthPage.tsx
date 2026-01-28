@@ -35,9 +35,6 @@ export default function AuthPage() {
     e.preventDefault();
     e.stopPropagation();
     
-    const form = e.target as HTMLFormElement;
-    const isValid = form.checkValidity();
-    
     console.log('AuthPage: Form submitted', {
       isLogin,
       email: email.substring(0, 5) + '...',
@@ -45,15 +42,7 @@ export default function AuthPage() {
       hasFirstName: !!firstName,
       isLoading,
       isTransitioning,
-      formValid: isValid,
     });
-    
-    // If form is invalid, show validation errors
-    if (!isValid) {
-      console.warn('AuthPage: Form validation failed');
-      form.reportValidity();
-      return;
-    }
     
     // Clear any previous errors
     setError(null);
