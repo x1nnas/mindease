@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useChat } from '../features/chat/useChat';
 import { useLanguage } from '../i18n/useLanguage';
+import doveLogo from '../assets/Dove nobg.svg';
 
 export default function ChatPage() {
   const { messages, isTyping, isLoading, error, sendMessage, clearError } = useChat();
@@ -105,6 +106,25 @@ export default function ChatPage() {
             filter: "blur(60px)",
           }}
         />
+        
+        {/* Blurred MindEase Dove Logo Background */}
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] flex items-center justify-center"
+          style={{
+            opacity: 0.08,
+            filter: 'blur(40px)',
+            pointerEvents: 'none',
+          }}
+        >
+          <img 
+            src={doveLogo}
+            alt=""
+            className="w-full h-full object-contain"
+            style={{
+              filter: 'brightness(0) saturate(100%) invert(67%) sepia(30%) saturate(500%) hue-rotate(120deg) brightness(115%) contrast(95%)',
+            }}
+          />
+        </div>
       </div>
 
       {/* Chat Container */}

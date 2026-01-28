@@ -496,10 +496,11 @@ export default function JournalPage() {
         {/* Watermark Logo with MindEase text - subtle branding */}
         {(mode === 'write' || mode === 'entries') && (
           <div
-            className="mt-12 mb-16 sm:mb-20"
+            className="mt-12"
             style={{ 
               animation: 'fadeUp 0.8s ease-out 0.8s',
               animationFillMode: 'both',
+              marginBottom: 'clamp(6rem, 12vh, 8rem)', // Responsive bottom margin to prevent overlap with bottom nav
             }}
           >
             <BrandLogo size="md" showText={true} />
