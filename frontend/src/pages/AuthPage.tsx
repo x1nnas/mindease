@@ -53,14 +53,16 @@ export default function AuthPage() {
       return;
     }
     
-    if (!isLogin && !firstName.trim()) {
-      setError(t('pleaseFillAllFields') || 'Please fill in all fields');
-      return;
-    }
-    
-    if (password.length < 8) {
-      setError(t('passwordTooShort') || 'Password must be at least 8 characters');
-      return;
+    // Register-specific validation
+    if (!isLogin) {
+      if (!firstName.trim()) {
+        setError(t('pleaseFillAllFields') || 'Please fill in all fields');
+        return;
+      }
+      if (password.length < 8) {
+        setError(t('passwordTooShort') || 'Password must be at least 8 characters');
+        return;
+      }
     }
 
     try {
