@@ -32,6 +32,7 @@ const BottomNavigation = () => {
 
   useEffect(() => {
     // Don't show if not authenticated or on hidden pages
+    // This check must come first to ensure welcome page never shows nav
     if (!isAuthenticated || shouldHide) {
       setShouldShow(false);
       return;
@@ -58,13 +59,16 @@ const BottomNavigation = () => {
         const timer = setTimeout(() => {
           setShouldShow(true);
           sessionStorage.removeItem('justCompletedWelcome');
-        }, 4000); // After welcome transition and navigation completes
+        }, 4200); // Slightly longer to ensure welcome page is fully gone
 
         return () => clearTimeout(timer);
       } else {
-        // Coming to home from other pages, show with animation
-        setShouldShow(true);
-        return;
+        // Coming to home from other pages, show with animation after small delay
+        const timer = setTimeout(() => {
+          setShouldShow(true);
+        }, 100); // Small delay for smooth animation
+
+        return () => clearTimeout(timer);
       }
     }
 
