@@ -72,6 +72,7 @@ export default function AuthPage() {
       console.log('AuthPage: Is mobile:', /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
       
       if (isLogin) {
+        console.log('AuthPage: Calling login API...');
         await login(email, password);
         console.log('AuthPage: Login successful');
       } else {
@@ -97,6 +98,10 @@ export default function AuthPage() {
       }
     } catch (error) {
       console.error('AuthPage: Auth error:', error);
+      console.error('AuthPage: Error details:', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       const errorMessage = error instanceof Error 
         ? error.message 
         : (isLogin ? 'Login failed. Please try again.' : 'Registration failed. Please try again.');
