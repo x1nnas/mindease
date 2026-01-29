@@ -35,15 +35,6 @@ export default function AuthPage() {
     e.preventDefault();
     e.stopPropagation();
     
-    console.log('AuthPage: Form submitted', {
-      isLogin,
-      email: email.substring(0, 5) + '...',
-      hasPassword: !!password,
-      hasFirstName: !!firstName,
-      isLoading,
-      isTransitioning,
-    });
-    
     // Clear any previous errors
     setError(null);
     
@@ -66,19 +57,10 @@ export default function AuthPage() {
     }
 
     try {
-      console.log('AuthPage: Starting', isLogin ? 'login' : 'registration');
-      console.log('AuthPage: API URL:', import.meta.env.VITE_API_URL);
-      console.log('AuthPage: Email:', email);
-      console.log('AuthPage: Is mobile:', /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
-      
       if (isLogin) {
-        console.log('AuthPage: Calling login API...');
         await login(email, password);
-        console.log('AuthPage: Login successful');
       } else {
-        console.log('AuthPage: Calling register API...');
         await register(email, password);
-        console.log('AuthPage: Registration successful');
         // Store firstName in localStorage for WelcomePage
         if (firstName.trim()) {
           const storedUser = localStorage.getItem('user');
@@ -205,13 +187,6 @@ export default function AuthPage() {
                 position: 'relative',
                 zIndex: 1,
               }}
-              onClick={(e) => {
-                // Debug: log form clicks
-                console.log('AuthPage: Form clicked', {
-                  target: (e.target as HTMLElement).tagName,
-                  isLogin,
-                });
-              }}
             >
               {/* First Name - Register only */}
               {!isLogin && (
@@ -309,15 +284,6 @@ export default function AuthPage() {
                   type="submit"
                   disabled={isLoading || isTransitioning}
                   onClick={(e) => {
-                    // Debug logging for mobile
-                    console.log('AuthPage: Button clicked/touched', {
-                      isLoading,
-                      isTransitioning,
-                      disabled: e.currentTarget.disabled,
-                      type: e.type,
-                      isLogin,
-                    });
-                    
                     // If button is disabled, prevent any action
                     if (isLoading || isTransitioning) {
                       e.preventDefault();
@@ -330,7 +296,6 @@ export default function AuthPage() {
                   }}
                   onTouchStart={(e) => {
                     // Ensure touch events are captured
-                    console.log('AuthPage: Button touch start');
                     e.stopPropagation(); // Prevent event bubbling
                     if (!isLoading && !isTransitioning) {
                       e.currentTarget.style.transform = 'scale(0.98)';
@@ -338,7 +303,6 @@ export default function AuthPage() {
                     }
                   }}
                   onTouchEnd={(e) => {
-                    console.log('AuthPage: Button touch end');
                     e.stopPropagation(); // Prevent event bubbling
                     e.currentTarget.style.transform = 'scale(1)';
                     e.currentTarget.style.opacity = '1';
