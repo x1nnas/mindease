@@ -177,7 +177,12 @@ export default function JournalPage() {
       </div>
 
       {/* Content */}
-      <main className="relative z-10 flex flex-col flex-1 px-4 sm:px-6 py-4 sm:py-8 pb-20 sm:pb-28 overflow-y-auto">
+      <main 
+        className="relative z-10 flex flex-col flex-1 px-4 sm:px-6 py-4 sm:py-8 overflow-y-auto"
+        style={{
+          paddingBottom: 'clamp(6rem, 12vh, 8rem)', // Responsive bottom padding to prevent overlap
+        }}
+      >
         {/* Language Switcher & Logout - subtle top right */}
         <div 
           className="absolute top-4 right-4 z-20 flex items-center gap-2"
@@ -383,10 +388,12 @@ export default function JournalPage() {
 
               {/* Actions */}
               <div
-                className="mt-6 space-y-3 mb-24 sm:mb-32"
+                className="mt-6 space-y-3"
                 style={{ 
                   animation: 'fadeUp 0.6s ease-out 0.5s',
                   animationFillMode: 'both',
+                  marginBottom: 'clamp(7rem, 15vh, 10rem)', // Extra bottom margin to prevent overlap with bottom nav
+                  paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)', // Account for iPhone safe area
                 }}
               >
                 <button
