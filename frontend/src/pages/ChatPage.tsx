@@ -82,8 +82,7 @@ export default function ChatPage() {
     <div 
       className="flex flex-col relative overflow-hidden bg-[#1a241f]"
       style={{
-        height: '100vh',
-        height: '100dvh', // Dynamic viewport height for mobile (excludes keyboard)
+        height: '100dvh', // Dynamic viewport height for mobile (excludes keyboard), falls back to 100vh
         position: 'fixed',
         top: 0,
         left: 0,
