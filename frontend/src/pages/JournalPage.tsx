@@ -383,7 +383,7 @@ export default function JournalPage() {
 
               {/* Actions */}
               <div
-                className="mt-6 space-y-3"
+                className="mt-6 space-y-3 mb-24 sm:mb-32"
                 style={{ 
                   animation: 'fadeUp 0.6s ease-out 0.5s',
                   animationFillMode: 'both',
