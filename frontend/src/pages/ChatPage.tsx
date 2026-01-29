@@ -120,12 +120,12 @@ export default function ChatPage() {
           }}
         />
         
-        {/* Blurred MindEase Dove Logo Background */}
+        {/* Blurred MindEase Dove Logo Background - more visible */}
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] flex items-center justify-center"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] flex items-center justify-center"
           style={{
-            opacity: 0.08,
-            filter: 'blur(40px)',
+            opacity: 0.15,
+            filter: 'blur(50px)',
             pointerEvents: 'none',
           }}
         >
@@ -205,9 +205,15 @@ export default function ChatPage() {
         <div className="flex-1 overflow-y-auto px-4 py-4 pb-4 space-y-4" style={{ maxHeight: 'calc(100vh - 280px)' }}>
           {/* Empty state watermark logo - only when there are no messages */}
           {messages.length === 0 && !isTyping && !isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="flex flex-col items-center opacity-40">
-                <BrandLogo size="sm" showText={true} />
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+              <div 
+                className="flex flex-col items-center"
+                style={{
+                  opacity: 0.7,
+                  transform: 'translateY(-10%)', // Slightly above center for better visibility
+                }}
+              >
+                <BrandLogo size="md" showText={true} />
               </div>
             </div>
           )}
