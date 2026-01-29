@@ -12,7 +12,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const clearAuth = () => {
     // Get user ID before clearing user data (for chat cleanup)
     const currentUser = user;
-    const userId = currentUser?.id || currentUser?._id || null;
+    const userId = currentUser?.id || null;
     
     setToken(null);
     setUser(null);

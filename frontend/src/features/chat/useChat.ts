@@ -76,7 +76,7 @@ export const clearChatHistory = (userId: string | null = null) => {
 export function useChat() {
   const { language } = useLanguage();
   const { user } = useAuth();
-  const userId = user?.id || user?._id || null;
+  const userId = user?.id || null;
   
   const [messages, setMessages] = useState<Message[]>(() => {
     // Try to load saved messages for current user
