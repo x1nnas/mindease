@@ -5,6 +5,7 @@ import { useLanguage } from '../i18n/useLanguage';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { LogoutButton } from '../components/LogoutButton';
 import doveLogo from '../assets/Dove nobg.svg';
+import { BrandLogo } from '../components/BrandLogo';
 
 export default function ChatPage() {
   const { messages, isTyping, isLoading, error, sendMessage, clearError } = useChat();
@@ -202,6 +203,15 @@ export default function ChatPage() {
 
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto px-4 py-4 pb-4 space-y-4" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+          {/* Empty state watermark logo - only when there are no messages */}
+          {messages.length === 0 && !isTyping && !isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="flex flex-col items-center opacity-40">
+                <BrandLogo size="sm" showText={true} />
+              </div>
+            </div>
+          )}
+
           {messages.map((message, index) => {
             const isUser = message.sender === 'user';
             const isLastMessage = index === messages.length - 1;

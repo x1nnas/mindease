@@ -15,7 +15,6 @@ export default function AuthPage() {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [buttonClicked, setButtonClicked] = useState(false);
 
   useEffect(() => {
     // Animate in if coming from EntryPage
