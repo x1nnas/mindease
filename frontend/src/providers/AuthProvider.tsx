@@ -10,11 +10,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Clean up invalid/expired tokens and user data
   const clearAuth = () => {
+    // Get user ID before clearing user data (for chat cleanup)
+    const currentUser = user;
+    const userId = currentUser?.id || currentUser?._id || null;
+    
     setToken(null);
     setUser(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('userFirstName');
+    
+    // Clear chat history for this user
+    if (userId) {
+      // Import and call clearChatHistory
+      import('../features/chat/useChat').then(({ clearChatHistory }) => {
+        clearChatHistory(userId);
+      });
+    }
+    // Also clear any guest chat history
+    localStorage.removeItem('mindease_chat_messages_guest');
   };
 
   // Initial auth check on mount

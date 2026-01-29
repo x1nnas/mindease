@@ -3,14 +3,25 @@ import type { Message, Sender } from './types';
 import { sendMessage } from '../../services/api';
 import { getLatestMoodCheckIn, formatMoodContext } from '../../utils/moodUtils';
 import { useLanguage } from '../../i18n/useLanguage';
+import { useAuth } from '../../contexts/useAuth';
 
-const CHAT_STORAGE_KEY = 'mindease_chat_messages';
+const CHAT_STORAGE_KEY_PREFIX = 'mindease_chat_messages_';
 const MAX_HISTORY_MESSAGES = 50; // Increased from 10 to allow longer conversations
 
-// Load messages from localStorage
-const loadMessagesFromStorage = (): Message[] => {
+// Get user-specific storage key
+const getChatStorageKey = (userId: string | null): string => {
+  if (!userId) {
+    // Fallback to generic key for guests (though guests shouldn't persist chat)
+    return 'mindease_chat_messages_guest';
+  }
+  return `${CHAT_STORAGE_KEY_PREFIX}${userId}`;
+};
+
+// Load messages from localStorage for specific user
+const loadMessagesFromStorage = (userId: string | null): Message[] => {
   try {
-    const stored = localStorage.getItem(CHAT_STORAGE_KEY);
+    const storageKey = getChatStorageKey(userId);
+    const stored = localStorage.getItem(storageKey);
     if (stored) {
       const parsed = JSON.parse(stored);
       // Convert timestamp strings back to Date objects
@@ -25,27 +36,51 @@ const loadMessagesFromStorage = (): Message[] => {
   return [];
 };
 
-// Save messages to localStorage
-const saveMessagesToStorage = (messages: Message[]) => {
+// Save messages to localStorage for specific user
+const saveMessagesToStorage = (messages: Message[], userId: string | null) => {
   try {
+    const storageKey = getChatStorageKey(userId);
     // Only save if there are messages beyond the welcome message
     const messagesToSave = messages.filter(msg => msg.id !== 'welcome-1');
     if (messagesToSave.length > 0) {
-      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+      localStorage.setItem(storageKey, JSON.stringify(messages));
     } else {
       // Clear storage if only welcome message exists
-      localStorage.removeItem(CHAT_STORAGE_KEY);
+      localStorage.removeItem(storageKey);
     }
   } catch (error) {
     console.error('Error saving chat to storage:', error);
   }
 };
 
+// Clear chat history for a user (or all users if userId is null)
+export const clearChatHistory = (userId: string | null = null) => {
+  if (userId) {
+    // Clear specific user's chat
+    const storageKey = getChatStorageKey(userId);
+    localStorage.removeItem(storageKey);
+  } else {
+    // Clear all chat histories (for logout)
+    // Remove all keys that start with the prefix
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(CHAT_STORAGE_KEY_PREFIX)) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+  }
+};
+
 export function useChat() {
   const { language } = useLanguage();
+  const { user } = useAuth();
+  const userId = user?.id || user?._id || null;
+  
   const [messages, setMessages] = useState<Message[]>(() => {
-    // Try to load saved messages first
-    const savedMessages = loadMessagesFromStorage();
+    // Try to load saved messages for current user
+    const savedMessages = loadMessagesFromStorage(userId);
     if (savedMessages.length > 0) {
       return savedMessages;
     }
@@ -56,11 +91,29 @@ export function useChat() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const messagesRef = useRef<Message[]>(messages);
+  const previousUserIdRef = useRef<string | null>(userId);
 
   // Update messagesRef when messages change
   useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
+
+  // Clear and reload chat when user changes (login/logout/switch account)
+  useEffect(() => {
+    // If user ID changed, clear old messages and load new user's messages
+    if (previousUserIdRef.current !== userId) {
+      // Clear current messages
+      setMessages([]);
+      
+      // Load new user's messages (or empty if new user)
+      const savedMessages = loadMessagesFromStorage(userId);
+      if (savedMessages.length > 0) {
+        setMessages(savedMessages);
+      }
+      
+      previousUserIdRef.current = userId;
+    }
+  }, [userId]);
 
   useEffect(() => {
     // Get welcome message based on language
@@ -97,10 +150,10 @@ export function useChat() {
 
   // Save messages to localStorage whenever they change
   useEffect(() => {
-    if (messages.length > 0) {
-      saveMessagesToStorage(messages);
+    if (messages.length > 0 && userId) {
+      saveMessagesToStorage(messages, userId);
     }
-  }, [messages]);
+  }, [messages, userId]);
 
   const handleSend = async (text: string) => {
     const userMessage: Message = {
@@ -177,7 +230,7 @@ export function useChat() {
         const updated = [...prev, serenityMessage];
         messagesRef.current = updated;
         // Save to localStorage (handled by useEffect, but ensure it's saved)
-        saveMessagesToStorage(updated);
+        saveMessagesToStorage(updated, userId);
         return updated;
       });
     } catch (err) {
