@@ -25,6 +25,18 @@ export default function HomePage() {
     }
   }, [isEntering]);
 
+  // Reset scroll position when navigating to home page
+  // This fixes the issue where keyboard pushes content up and it stays hidden
+  useEffect(() => {
+    // Scroll to top when component mounts or when navigating back
+    window.scrollTo(0, 0);
+    // Also reset the main content container scroll
+    const mainContent = document.querySelector('[data-home-main-content]');
+    if (mainContent) {
+      mainContent.scrollTop = 0;
+    }
+  }, [location.pathname]);
+
   // Get time-based greeting
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -38,7 +50,18 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative h-screen overflow-hidden bg-[#1a241f]">
+    <div 
+      className="relative overflow-hidden bg-[#1a241f]"
+      style={{
+        height: '100vh',
+        height: '100dvh', // Dynamic viewport height for mobile (excludes keyboard)
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      }}
+    >
       {/* Glow background layer - matching other pages */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Main green glow - top left */}
@@ -74,7 +97,15 @@ export default function HomePage() {
       {import.meta.env.DEV && <SentryDiagnostics />}
 
       {/* Main content with bottom padding for nav */}
-      <div className="flex-1 flex flex-col px-4 sm:px-6 pt-8 sm:pt-16 pb-28 sm:pb-32 relative z-10 overflow-y-auto" style={{ maxHeight: '100vh', paddingBottom: 'clamp(7rem, 12vh, 8rem)' }}>
+      <div 
+        className="flex-1 flex flex-col px-4 sm:px-6 pt-8 sm:pt-16 pb-28 sm:pb-32 relative z-10 overflow-y-auto" 
+        data-home-main-content
+        style={{ 
+          maxHeight: '100vh',
+          maxHeight: '100dvh', // Dynamic viewport height
+          paddingBottom: 'clamp(7rem, 12vh, 8rem)' 
+        }}
+      >
         {/* Language Switcher & Logout - subtle top right */}
         <div 
           className="absolute top-6 right-6 z-20 flex items-center gap-2"

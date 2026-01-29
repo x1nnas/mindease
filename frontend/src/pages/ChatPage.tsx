@@ -79,7 +79,18 @@ export default function ChatPage() {
   const isDisabled = isTyping || isLoading;
 
   return (
-    <div className="h-screen flex flex-col relative overflow-hidden bg-[#1a241f]">
+    <div 
+      className="flex flex-col relative overflow-hidden bg-[#1a241f]"
+      style={{
+        height: '100vh',
+        height: '100dvh', // Dynamic viewport height for mobile (excludes keyboard)
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      }}
+    >
       {/* Glow background layer - matching other pages */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Main green glow - top left */}
@@ -337,6 +348,11 @@ export default function ChatPage() {
             animationFillMode: 'both',
             paddingBottom: 'calc(120px + env(safe-area-inset-bottom, 0px))',
             marginBottom: '20px',
+            position: 'sticky',
+            bottom: 0,
+            backgroundColor: 'rgba(26, 36, 31, 0.95)',
+            backdropFilter: 'blur(10px)',
+            zIndex: 10,
           }}
         >
           <form onSubmit={handleSubmit} className="relative">
