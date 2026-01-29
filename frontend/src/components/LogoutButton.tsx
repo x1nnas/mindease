@@ -7,6 +7,7 @@ import { useLanguage } from '../i18n/useLanguage';
  * 
  * Subtle button to log out, matching the LanguageSwitcher style
  * Designed to be unobtrusive while remaining accessible
+ * Soft and ambient design that blends with the background
  */
 export function LogoutButton() {
   const { logout } = useAuth();
@@ -21,22 +22,25 @@ export function LogoutButton() {
   return (
     <button
       onClick={handleLogout}
-      className="group relative px-2.5 py-1.5 text-xs font-light tracking-wide rounded-full transition-all duration-300 hover:opacity-100"
+      className="group relative px-2.5 py-1.5 text-xs font-light tracking-wide rounded-full transition-all duration-300"
       style={{
-        background: "rgba(255, 255, 255, 0.05)",
-        border: "1px solid rgba(255, 255, 255, 0.08)",
-        color: "rgba(255, 255, 255, 0.5)",
-        opacity: 0.6,
+        background: "rgba(255, 255, 255, 0.04)",
+        border: "1px solid rgba(255, 255, 255, 0.06)",
+        color: "rgba(255, 255, 255, 0.45)",
+        opacity: 0.5,
+        backdropFilter: "blur(8px)",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.opacity = '1';
+        e.currentTarget.style.opacity = '0.9';
         e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+        e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.opacity = '0.6';
-        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+        e.currentTarget.style.opacity = '0.5';
+        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.06)';
+        e.currentTarget.style.color = 'rgba(255, 255, 255, 0.45)';
       }}
       title={t('logout')}
     >
@@ -46,7 +50,7 @@ export function LogoutButton() {
           fill="none" 
           stroke="currentColor" 
           viewBox="0 0 24 24"
-          style={{ opacity: 0.7 }}
+          style={{ opacity: 0.65 }}
         >
           <path 
             strokeLinecap="round" 

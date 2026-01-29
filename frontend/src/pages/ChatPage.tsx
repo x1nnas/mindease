@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useChat } from '../features/chat/useChat';
 import { useLanguage } from '../i18n/useLanguage';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { LogoutButton } from '../components/LogoutButton';
 import doveLogo from '../assets/Dove nobg.svg';
 
 export default function ChatPage() {
@@ -140,6 +142,17 @@ export default function ChatPage() {
             paddingTop: 'calc(env(safe-area-inset-top, 0px) + 2rem)',
           }}
         >
+          {/* Language Switcher & Logout - subtle top right */}
+          <div 
+            className="absolute top-4 right-4 z-20 flex items-center gap-2"
+            style={{
+              top: 'calc(env(safe-area-inset-top, 0px) + 1rem)',
+            }}
+          >
+            <LanguageSwitcher />
+            <LogoutButton />
+          </div>
+          
           <div className="flex items-center gap-3">
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center relative"

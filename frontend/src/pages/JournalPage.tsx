@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { createJournalEntry, updateJournalEntry, getAllJournalEntries as apiGetAllJournalEntries, type JournalEntryResponse } from '../services/api';
 import { BrandLogo } from '../components/BrandLogo';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { LogoutButton } from '../components/LogoutButton';
 import { useLanguage } from '../i18n/useLanguage';
 
 type Mode = 'write' | 'entries' | 'view';
@@ -176,6 +178,17 @@ export default function JournalPage() {
 
       {/* Content */}
       <main className="relative z-10 flex flex-col flex-1 px-4 sm:px-6 py-4 sm:py-8 pb-20 sm:pb-28 overflow-y-auto">
+        {/* Language Switcher & Logout - subtle top right */}
+        <div 
+          className="absolute top-4 right-4 z-20 flex items-center gap-2"
+          style={{ 
+            animation: 'fadeUp 0.8s ease-out 0.4s',
+            animationFillMode: 'both',
+          }}
+        >
+          <LanguageSwitcher />
+          <LogoutButton />
+        </div>
         
         {/* Header */}
         <div
