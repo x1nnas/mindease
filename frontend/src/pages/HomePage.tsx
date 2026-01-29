@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ErrorTestingButton } from '../components/ErrorTesting';
 import { SentryDiagnostics } from '../components/SentryDiagnostics';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { LogoutButton } from '../components/LogoutButton';
 import { BrandLogo } from '../components/BrandLogo';
 import { useLanguage } from '../i18n/useLanguage';
 
@@ -74,15 +75,16 @@ export default function HomePage() {
 
       {/* Main content with bottom padding for nav */}
       <div className="flex-1 flex flex-col px-4 sm:px-6 pt-8 sm:pt-16 pb-28 sm:pb-32 relative z-10 overflow-y-auto" style={{ maxHeight: '100vh', paddingBottom: 'clamp(7rem, 12vh, 8rem)' }}>
-        {/* Language Switcher - subtle top right */}
+        {/* Language Switcher & Logout - subtle top right */}
         <div 
-          className="absolute top-6 right-6 z-20"
+          className="absolute top-6 right-6 z-20 flex items-center gap-2"
           style={{ 
             animation: 'fadeUp 0.8s ease-out 0.4s',
             animationFillMode: 'both',
           }}
         >
           <LanguageSwitcher />
+          <LogoutButton />
         </div>
 
         {/* Hero Section */}

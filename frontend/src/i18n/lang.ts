@@ -138,6 +138,7 @@ export const copy = {
     // Common
     back: "Back",
     pleaseWait: "Please wait...",
+    logout: "Logout",
   },
   pt: {
     // Auth
