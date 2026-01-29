@@ -53,8 +53,7 @@ export default function HomePage() {
     <div 
       className="relative overflow-hidden bg-[#1a241f]"
       style={{
-        height: '100vh',
-        height: '100dvh', // Dynamic viewport height for mobile (excludes keyboard)
+        height: '100dvh', // Dynamic viewport height for mobile (excludes keyboard), falls back to 100vh
         position: 'fixed',
         top: 0,
         left: 0,
@@ -101,8 +100,7 @@ export default function HomePage() {
         className="flex-1 flex flex-col px-4 sm:px-6 pt-8 sm:pt-16 pb-28 sm:pb-32 relative z-10 overflow-y-auto" 
         data-home-main-content
         style={{ 
-          maxHeight: '100vh',
-          maxHeight: '100dvh', // Dynamic viewport height
+          maxHeight: '100dvh', // Dynamic viewport height (excludes keyboard), falls back to 100vh
           paddingBottom: 'clamp(7rem, 12vh, 8rem)' 
         }}
       >
