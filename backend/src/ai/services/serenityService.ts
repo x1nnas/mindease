@@ -94,18 +94,35 @@ export async function getSerenityReply({
 }: SerenityRequest): Promise<SerenityResponse> {
   // Return mock responses when AI is disabled or API key is missing
   // For testing: Set AI_ENABLED=true and OPENAI_API_KEY to use real OpenAI API
-  const aiEnabled = process.env.AI_ENABLED === "true";
+  // Case-insensitive check to handle TRUE, True, true, etc.
+  const aiEnabled = process.env.AI_ENABLED?.toLowerCase() === "true";
   const hasApiKey = !!process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== '';
+  
+  // Log current state for debugging
+  console.log("🤖 AI Chatbot Status Check:", {
+    AI_ENABLED: process.env.AI_ENABLED,
+    aiEnabled: aiEnabled,
+    hasApiKey: hasApiKey,
+    apiKeyLength: process.env.OPENAI_API_KEY?.length || 0,
+  });
   
   // Use mock responses if:
   // 1. AI_ENABLED is not explicitly set to "true" (works in both dev and production)
   // 2. OR if AI_ENABLED is true but API key is missing (fallback to mocks)
   if (!aiEnabled || (aiEnabled && !hasApiKey)) {
-    console.log("🤖 AI Chatbot: Using mock responses (set AI_ENABLED=true and OPENAI_API_KEY to use OpenAI)");
+    console.log("🤖 AI Chatbot: Using mock responses");
+    if (!aiEnabled) {
+      console.log("   Reason: AI_ENABLED is not set to 'true' (current value: '" + process.env.AI_ENABLED + "')");
+    }
+    if (aiEnabled && !hasApiKey) {
+      console.log("   Reason: OPENAI_API_KEY is missing or empty");
+    }
     return {
       reply: getMockResponse(message),
     };
   }
+  
+  console.log("🤖 AI Chatbot: Using real OpenAI API");
 
   const openai = getOpenAIClient();
 

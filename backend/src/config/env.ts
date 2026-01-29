@@ -49,17 +49,26 @@ export function validateEnv(): void {
 
   console.log('✅ All required environment variables are set');
   
-  // Log AI status
-  const aiEnabled = process.env.AI_ENABLED === 'true';
-  const hasApiKey = !!process.env.OPENAI_API_KEY;
+  // Log AI status (case-insensitive check)
+  const aiEnabled = process.env.AI_ENABLED?.toLowerCase() === 'true';
+  const hasApiKey = !!process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== '';
+  const aiEnabledRaw = process.env.AI_ENABLED;
+  
+  console.log('🤖 AI Chatbot Configuration:', {
+    AI_ENABLED: aiEnabledRaw || '(not set)',
+    aiEnabled: aiEnabled,
+    hasApiKey: hasApiKey,
+    apiKeyLength: process.env.OPENAI_API_KEY?.length || 0,
+  });
+  
   if (aiEnabled && hasApiKey) {
     console.log('🤖 AI Chatbot: ENABLED (using OpenAI API)');
   } else if (process.env.NODE_ENV !== 'production') {
     console.log('🤖 AI Chatbot: Using mock responses (set AI_ENABLED=true and OPENAI_API_KEY to enable real AI)');
   } else if (!aiEnabled) {
-    console.log('🤖 AI Chatbot: DISABLED (set AI_ENABLED=true to enable)');
+    console.log(`🤖 AI Chatbot: DISABLED (current value: '${aiEnabledRaw || 'not set'}', set AI_ENABLED=true to enable)`);
   } else {
-    console.warn('⚠️  AI Chatbot: AI_ENABLED=true but OPENAI_API_KEY not set');
+    console.warn('⚠️  AI Chatbot: AI_ENABLED=true but OPENAI_API_KEY not set or empty');
   }
 }
 
