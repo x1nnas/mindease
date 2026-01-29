@@ -280,5 +280,6 @@ export const copy = {
     // Common
     back: "Voltar",
     pleaseWait: "Por favor aguarda...",
+    logout: "Sair",
   },
 };
