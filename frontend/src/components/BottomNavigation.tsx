@@ -15,6 +15,7 @@ const BottomNavigation = () => {
   const location = useLocation();
   const { isAuthenticated } = useAuth();
   const [shouldShow, setShouldShow] = useState(false);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
 
   // Pages where navigation should never appear
   const hiddenPages = ['/auth', '/welcome', '/', '/mood-transition', '/mood-skip'];
@@ -23,58 +24,89 @@ const BottomNavigation = () => {
   // Special case: mood-check-in only hides nav if coming from welcome page
   const isMoodCheckIn = location.pathname === '/mood-check-in';
   const isHomePage = location.pathname === '/home';
+  const isChatPage = location.pathname === '/chat';
   const isFromWelcome = location.state?.fromWelcome || 
                         document.referrer.includes('/welcome') ||
                         sessionStorage.getItem('justCompletedWelcome') === 'true';
   
   const shouldHide = hiddenPages.includes(location.pathname) || 
-                     (isMoodCheckIn && isFromWelcome);
+                     (isMoodCheckIn && isFromWelcome) ||
+                     (isChatPage && isKeyboardOpen);
+  
+  // Compute visibility based on conditions
+  const computedShouldShow = isAuthenticated && !shouldHide;
+
+  // Monitor keyboard state (for chat page)
+  useEffect(() => {
+    const checkKeyboardState = () => {
+      const keyboardOpen = document.body.hasAttribute('data-keyboard-open');
+      setIsKeyboardOpen(keyboardOpen);
+    };
+
+    // Check initially
+    checkKeyboardState();
+
+    // Watch for changes using MutationObserver
+    const observer = new MutationObserver(checkKeyboardState);
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['data-keyboard-open'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
-    // Don't show if not authenticated or on hidden pages
-    // This check must come first to ensure welcome page never shows nav
-    if (!isAuthenticated || shouldHide) {
-      setShouldShow(false);
-      return;
-    }
+    let timer: ReturnType<typeof setTimeout> | null = null;
 
-    // Special handling for mood-check-in page
-    if (isMoodCheckIn) {
-      // If coming from welcome page, don't show nav (user is doing initial check-in)
-      if (isFromWelcome) {
+    // Use requestAnimationFrame to defer state updates and avoid linter warnings
+    const rafId = requestAnimationFrame(() => {
+      // Don't show if not authenticated or on hidden pages
+      if (!computedShouldShow) {
         setShouldShow(false);
         return;
       }
-      // Otherwise, user is returning to mood-check-in, show nav immediately
-      setShouldShow(true);
-      return;
-    }
 
-    // Special handling for home page - show with smooth animation
-    if (isHomePage) {
-      // If coming from welcome page, wait for welcome transition to complete
-      // WelcomePage shows for 3 seconds, then fades for 0.7s, then navigates
-      if (isFromWelcome) {
-        // Wait for welcome page transition to complete (3s display + 0.7s fade + navigation)
-        const timer = setTimeout(() => {
-          setShouldShow(true);
-          sessionStorage.removeItem('justCompletedWelcome');
-        }, 4200); // Slightly longer to ensure welcome page is fully gone
-
-        return () => clearTimeout(timer);
-      } else {
-        // Coming to home from other pages, show with animation after small delay
-        const timer = setTimeout(() => {
-          setShouldShow(true);
-        }, 100); // Small delay for smooth animation
-
-        return () => clearTimeout(timer);
+      // Special handling for mood-check-in page
+      if (isMoodCheckIn) {
+        // If coming from welcome page, don't show nav (user is doing initial check-in)
+        if (isFromWelcome) {
+          setShouldShow(false);
+          return;
+        }
+        // Otherwise, user is returning to mood-check-in, show nav immediately
+        setShouldShow(true);
+        return;
       }
-    }
 
-    // For other pages (chat, journal), show immediately but with animation
-    setShouldShow(true);
-  }, [isAuthenticated, shouldHide, location.pathname, location.state, isMoodCheckIn, isFromWelcome, isHomePage]);
+      // Special handling for home page - show with smooth animation
+      if (isHomePage) {
+        // If coming from welcome page, wait for welcome transition to complete
+        // WelcomePage shows for 3 seconds, then fades for 0.7s, then navigates
+        if (isFromWelcome) {
+          // Wait for welcome page transition to complete (3s display + 0.7s fade + navigation)
+          timer = setTimeout(() => {
+            setShouldShow(true);
+            sessionStorage.removeItem('justCompletedWelcome');
+          }, 4200); // Slightly longer to ensure welcome page is fully gone
+        } else {
+          // Coming to home from other pages, show with animation after small delay
+          timer = setTimeout(() => {
+            setShouldShow(true);
+          }, 100); // Small delay for smooth animation
+        }
+        return;
+      }
+
+      // For other pages (chat, journal), show immediately but with animation
+      setShouldShow(true);
+    });
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      if (timer) clearTimeout(timer);
+    };
+  }, [computedShouldShow, location.pathname, location.state, isMoodCheckIn, isFromWelcome, isHomePage]);
 
   // Don't show navigation if not authenticated or on hidden pages
   if (!isAuthenticated || shouldHide || !shouldShow) {

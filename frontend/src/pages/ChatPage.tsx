@@ -15,6 +15,7 @@ export default function ChatPage() {
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [localError, setLocalError] = useState<string | null>(null);
   const [isEntering, setIsEntering] = useState(() => !!location.state?.fromHome);
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -51,6 +52,18 @@ export default function ChatPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping]);
+
+  // Hide bottom nav when keyboard is open (input is focused)
+  useEffect(() => {
+    if (isInputFocused) {
+      document.body.setAttribute('data-keyboard-open', 'true');
+    } else {
+      document.body.removeAttribute('data-keyboard-open');
+    }
+    return () => {
+      document.body.removeAttribute('data-keyboard-open');
+    };
+  }, [isInputFocused]);
 
   const handleSendMessage = (content: string) => {
     if (!content.trim()) return;
@@ -361,13 +374,16 @@ export default function ChatPage() {
           style={{
             animation: isEntering ? 'none' : 'fadeInUp 0.6s ease-out 0.3s',
             animationFillMode: 'both',
-            paddingBottom: 'calc(120px + env(safe-area-inset-bottom, 0px))',
-            marginBottom: '20px',
+            paddingBottom: isInputFocused 
+              ? 'calc(0.5rem + env(safe-area-inset-bottom, 0px))' // Minimal padding when keyboard is open
+              : 'calc(120px + env(safe-area-inset-bottom, 0px))', // Full padding when keyboard is closed
+            marginBottom: isInputFocused ? '0' : '20px',
             position: 'sticky',
             bottom: 0,
             backgroundColor: 'rgba(26, 36, 31, 0.95)',
             backdropFilter: 'blur(10px)',
             zIndex: 10,
+            transition: 'padding-bottom 0.3s ease-out, margin-bottom 0.3s ease-out',
           }}
         >
           <form onSubmit={handleSubmit} className="relative">
@@ -387,6 +403,8 @@ export default function ChatPage() {
                   if (localError) setLocalError(null); // Clear local error when user types
                   if (error) clearError(); // Clear API error when user types
                 }}
+                onFocus={() => setIsInputFocused(true)}
+                onBlur={() => setIsInputFocused(false)}
                 placeholder={t('shareMind')}
                 disabled={isDisabled}
                 maxLength={2000}
