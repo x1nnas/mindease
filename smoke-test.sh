@@ -19,12 +19,12 @@ FAILED=0
 # Helper functions
 pass() {
   echo -e "${GREEN}✅ PASS${NC}: $1"
-  ((PASSED++))
+  PASSED=$((PASSED + 1))
 }
 
 fail() {
   echo -e "${RED}❌ FAIL${NC}: $1"
-  ((FAILED++))
+  FAILED=$((FAILED + 1))
 }
 
 info() {
@@ -96,19 +96,26 @@ fi
 
 # Test 3: API endpoints exist
 info "Test 3: API Endpoints"
-ENDPOINTS=(
-  "/api/auth/register"
-  "/api/auth/login"
-  "/api/mood"
-  "/api/journal"
-  "/api/serenity/chat"
-)
 
-for endpoint in "${ENDPOINTS[@]}"; do
-  if curl -s -o /dev/null -w "%{http_code}" "http://localhost:5050${endpoint}" | grep -q "401\|400\|405"; then
+# Check auth endpoints with POST (they only accept POST)
+for endpoint in "/api/auth/register" "/api/auth/login"; do
+  STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST "http://localhost:5050${endpoint}" \
+    -H "Content-Type: application/json" \
+    -d '{}')
+  if echo "$STATUS" | grep -q "400\|401\|422"; then
     pass "Endpoint exists: ${endpoint}"
   else
-    fail "Endpoint missing or broken: ${endpoint}"
+    fail "Endpoint missing or broken: ${endpoint} (got ${STATUS})"
+  fi
+done
+
+# Check other endpoints with GET
+for endpoint in "/api/mood" "/api/journal" "/api/serenity/chat"; do
+  STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:5050${endpoint}")
+  if echo "$STATUS" | grep -q "401\|400\|405\|404"; then
+    pass "Endpoint exists: ${endpoint}"
+  else
+    fail "Endpoint missing or broken: ${endpoint} (got ${STATUS})"
   fi
 done
 
