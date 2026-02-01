@@ -8,7 +8,7 @@
 [![MongoDB](https://img.shields.io/badge/MongoDB-9.0-green.svg)](https://www.mongodb.com/)
 [![License](https://img.shields.io/badge/License-ISC-blue.svg)](LICENSE)
 
-MindEase is a full-stack Progressive Web Application (PWA) designed as an emotional wellness companion. The application provides users with tools to track their mood, maintain a personal journal, and interact with an AI-powered chatbot named Serenity. Built with modern web technologies, MindEase emphasizes a calm, ambient user experience with full internationalization support for English and Portuguese (Portugal).
+MindEase is a full-stack Progressive Web Application (PWA) that serves as an emotional wellness companion. Users can track their daily mood, maintain a personal journal, and have conversations with Serenity, an AI-powered chatbot designed to provide emotional support. The app is built with modern web technologies and focuses on creating a calm, ambient user experience. It fully supports both English and Portuguese (Portugal) languages.
 
 ## ✨ Features
 
@@ -63,7 +63,7 @@ MindEase is a full-stack Progressive Web Application (PWA) designed as an emotio
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/mindease.git
+   git clone https://github.com/x1nnas/mindease.git
    cd mindease
    ```
 
@@ -135,9 +135,7 @@ mindease/
 │   │   └── utils/         # Utility functions
 │   └── public/            # Static assets
 │
-├── docs/                  # Project documentation
-├── smoke-test.sh          # Automated testing script
-└── PROJECT_REPORT.md      # Detailed project report
+└── smoke-test.sh          # Automated testing script
 ```
 
 ## 🧪 Testing
@@ -159,7 +157,7 @@ This script tests:
 - ✅ AI chatbot integration
 
 ### Manual Testing
-See `docs/SMOKE_TEST_README.md` for detailed manual testing procedures.
+For manual testing, start the development servers and test each feature through the UI. The smoke test script provides a good baseline for automated checks.
 
 ## 📚 API Documentation
 
@@ -258,16 +256,10 @@ Content-Type: application/json
 ## 🛠️ Development
 
 ### Code Style
-- TypeScript strict mode enabled
-- ESLint for code quality
-- Consistent formatting with Prettier (recommended)
+The project uses TypeScript strict mode and ESLint for code quality. I recommend using Prettier for consistent formatting, though it's not strictly required.
 
 ### Key Development Practices
-- **Type Safety**: Full TypeScript coverage
-- **Error Handling**: Comprehensive error boundaries and try-catch blocks
-- **Security**: Password hashing, JWT tokens, rate limiting
-- **Performance**: Code splitting, lazy loading, optimized builds
-- **Accessibility**: Semantic HTML, ARIA labels where needed
+I've focused on maintaining type safety throughout with full TypeScript coverage, implementing comprehensive error handling with error boundaries and try-catch blocks, and ensuring security through password hashing, JWT tokens, and rate limiting. The app also uses code splitting and lazy loading for better performance, and includes semantic HTML with ARIA labels for accessibility.
 
 ### Building for Production
 
@@ -341,11 +333,12 @@ Language switching is available throughout the application.
 
 ## 🤝 Contributing
 
+Contributions are welcome! If you'd like to contribute:
+
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch for your changes
+3. Make your changes and commit them
+4. Push to your fork and open a Pull Request
 
 ## 📄 License
 
@@ -355,8 +348,8 @@ This project is licensed under the ISC License.
 
 **José Ferreira**
 
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Project Link: [https://github.com/yourusername/mindease](https://github.com/yourusername/mindease)
+- GitHub: [@x1nnas](https://github.com/x1nnas)
+- Project Link: [https://github.com/x1nnas/mindease](https://github.com/x1nnas/mindease)
 
 ## 🙏 Acknowledgments
 
@@ -365,13 +358,6 @@ This project is licensed under the ISC License.
 - MongoDB for database solutions
 - Vercel and Render for hosting platforms
 - All open-source contributors whose libraries made this project possible
-
-## 📖 Additional Documentation
-
-- [Project Report](./PROJECT_REPORT.md) - Comprehensive project documentation
-- [Production Audit](./docs/PRODUCTION_AUDIT.md) - Production readiness checklist
-- [Code Review](./docs/CODE_REVIEW.md) - Code quality and best practices
-- [Smoke Test Guide](./docs/SMOKE_TEST_README.md) - Testing procedures
 
 ---
 
