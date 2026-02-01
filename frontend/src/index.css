@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+/* Font Configuration */
+/* Currently using Tailwind's default system font stack:
+   ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"
+   
+   To check what font is actually being used:
+   1. Open browser DevTools (F12 or Cmd+Option+I)
+   2. Inspect any text element
+   3. Check the Computed tab for font-family
+   4. The first available font in the stack will be used
+*/
+
 /* Ensure full height for layout and prevent white flashes */
 html, body {
   margin: 0;
