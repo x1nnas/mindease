@@ -1,229 +1,378 @@
-# MindEase — Emotional Wellness Companion
+# MindEase 🌿
 
-MindEase is a mobile-first wellness application designed to give users a calm, supportive space to understand and manage their emotions.  
-The core of the experience is **Serenity**, a conversational guide that uses clinically informed emotional support techniques such as reframing, grounding prompts, gentle questioning, and emotional labeling.
+> A Progressive Web Application for Emotional Wellness and Self-Reflection
 
-MindEase is built as a **Progressive Web App (PWA)**, allowing instant access, offline support, and an app-like experience without requiring the App Store.
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-19.2-blue.svg)](https://react.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-Express-green.svg)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-9.0-green.svg)](https://www.mongodb.com/)
+[![License](https://img.shields.io/badge/License-ISC-blue.svg)](LICENSE)
 
----
+MindEase is a full-stack Progressive Web Application (PWA) designed as an emotional wellness companion. The application provides users with tools to track their mood, maintain a personal journal, and interact with an AI-powered chatbot named Serenity. Built with modern web technologies, MindEase emphasizes a calm, ambient user experience with full internationalization support for English and Portuguese (Portugal).
 
-## 🌱 Purpose
+## ✨ Features
 
-Modern mental wellness apps are often:
-- cluttered and overwhelming  
-- locked behind paywalls  
-- too clinical or formal  
-- slow to deliver support when users need it most
+### Core Functionality
+- **🔐 User Authentication**: Secure registration and login system with JWT tokens
+- **😊 Mood Tracking**: Daily mood check-ins with visual feedback and historical data
+- **📝 Journal Entries**: Private journaling with full CRUD operations
+- **🤖 AI Chatbot (Serenity)**: Conversational AI assistant powered by OpenAI GPT for emotional support
+- **📱 Progressive Web App**: Installable on mobile devices with offline capabilities
+- **🌍 Internationalization**: Full support for English and Portuguese (Portugal)
+- **📱 Responsive Design**: Optimized for mobile and desktop experiences
+- **🎨 Ambient UI**: Calm, soothing interface with smooth animations
 
-MindEase focuses on:
-- **simplicity**  
-- **privacy**  
-- **emotional clarity**  
-- **fast, accessible support**
+### Technical Features
+- **Type-Safe Development**: Full TypeScript implementation across frontend and backend
+- **Error Tracking**: Integrated Sentry for production error monitoring
+- **Rate Limiting**: API protection against abuse
+- **Daily Limits**: AI usage limits to manage costs
+- **Secure Storage**: Encrypted password storage with bcrypt
+- **CORS Protection**: Secure cross-origin resource sharing
 
-No long onboarding.  
-No friction.  
-Just a calm space for clarity — anytime, anywhere.
+## 🏗️ Architecture
 
----
+### Frontend
+- **Framework**: React 19.2 with TypeScript
+- **Build Tool**: Vite 7.2 for fast development and optimized builds
+- **Routing**: React Router DOM 7.10 for client-side navigation
+- **State Management**: React Context API for global state
+- **Styling**: Tailwind CSS 4.1 with custom animations
+- **Error Handling**: React Error Boundary with Sentry integration
 
-## ✨ Core Features
+### Backend
+- **Runtime**: Node.js with Express.js 4.21
+- **Database**: MongoDB with Mongoose 9.0 for data modeling
+- **Authentication**: JWT tokens for stateless authentication
+- **AI Integration**: OpenAI API 6.9 for conversational AI
+- **Security**: bcrypt for password hashing, rate limiting, CORS
 
-### **Serenity Chat**
-A supportive conversational guide that helps users explore emotions through:
-- grounding techniques  
-- reframing questions  
-- gentle questioning  
-- emotional labeling  
-- non-clinical reflective support  
+### Deployment
+- **Frontend**: Vercel (automatic deployments from main branch)
+- **Backend**: Render (Node.js service with MongoDB Atlas)
+- **Database**: MongoDB Atlas (cloud-hosted)
 
-### **Mood Check-Ins**
-- quick mood selection  
-- optional notes  
-- emotional labeling  
-- daily self-awareness reminders  
+## 🚀 Quick Start
 
-### **Micro-Journaling**
-- short expressive entries  
-- timestamped reflections  
-- private, secure storage  
+### Prerequisites
+- Node.js 20.19+ or 22.12+
+- npm or yarn
+- MongoDB database (local or Atlas)
 
-### **Mood Trends**
-- simple visual patterns  
-- emotional progression over time  
-- optional integration with Serenity  
+### Installation
 
-### **PWA Experience**
-- installable on mobile  
-- offline capability  
-- fast loading  
-- automatic updates  
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/mindease.git
+   cd mindease
+   ```
 
----
+2. **Install dependencies**
+   ```bash
+   npm run install:all
+   ```
 
-## 🧱 Tech Stack
+3. **Set up environment variables**
 
-### **Frontend**
-- React  
-- Vite  
-- TypeScript  
-- TailwindCSS  
-- PWA configuration (manifest + service worker)
+   **Backend** (`backend/.env`):
+   ```env
+   PORT=5050
+   MONGODB_URI=your_mongodb_connection_string
+   JWT_SECRET=your_jwt_secret_key
+   FRONTEND_URL=http://localhost:5173
+   OPENAI_API_KEY=your_openai_api_key
+   AI_ENABLED=true
+   NODE_ENV=development
+   ```
 
-### **Backend**
-- Node.js  
-- Express  
-- TypeScript  
-- JWT authentication  
-- Secure password hashing (bcrypt)
+   **Frontend** (`frontend/.env`):
+   ```env
+   VITE_API_URL=http://localhost:5050
+   VITE_SENTRY_DSN=your_sentry_dsn (optional)
+   ```
 
-### **Database**
-- MongoDB Atlas  
-- Mongoose for schemas and validation
+4. **Start development servers**
+   ```bash
+   # Start both frontend and backend
+   npm run dev
 
-### **AI Integration**
-Serenity’s conversational behavior is built through structured prompts and safely handled within the backend.  
-The model does **not** store private user data — conversations remain ephemeral unless the user chooses to save journal notes.
+   # Or start separately:
+   npm run dev:backend  # Backend on http://localhost:5050
+   npm run dev:frontend # Frontend on http://localhost:5173
+   ```
 
----
+5. **Open your browser**
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:5050/api
 
-## 🔐 Security & Privacy
-
-MindEase is designed with privacy as a priority:
-
-- minimal data collection  
-- user authentication secured via JWT  
-- hashed passwords  
-- protected routes  
-- encrypted network communication (HTTPS)  
-- journaling and mood data stored securely  
-- users maintain full control over their data  
-
-No analytics or unnecessary tracking is included.
-
----
-
-## 🗂️ Project Structure
+## 📁 Project Structure
 
 ```
-/frontend        # React + Vite frontend
-/backend         # Node + Express API
-  /src
-    /config      # database config, env
-    /controllers # route controllers
-    /models      # mongoose schemas
-    /routes      # API routes
-    /middleware  # auth middleware
+mindease/
+├── backend/                 # Backend API server
+│   ├── src/
+│   │   ├── ai/             # AI chatbot implementation
+│   │   │   ├── controllers/
+│   │   │   ├── prompts/    # AI prompt engineering
+│   │   │   └── services/
+│   │   ├── config/         # Database and environment config
+│   │   ├── controllers/    # Request handlers
+│   │   ├── middleware/     # Auth, rate limiting, daily limits
+│   │   ├── models/         # Mongoose schemas
+│   │   ├── routes/         # API route definitions
+│   │   └── server.ts       # Express server setup
+│   └── dist/              # Compiled JavaScript
+│
+├── frontend/               # React frontend application
+│   ├── src/
+│   │   ├── components/    # Reusable UI components
+│   │   ├── contexts/       # React Context providers
+│   │   ├── features/       # Feature-specific code (chat, etc.)
+│   │   ├── i18n/          # Internationalization
+│   │   ├── pages/         # Page components
+│   │   ├── providers/     # Context providers
+│   │   ├── services/      # API service layer
+│   │   └── utils/         # Utility functions
+│   └── public/            # Static assets
+│
+├── docs/                  # Project documentation
+├── smoke-test.sh          # Automated testing script
+└── PROJECT_REPORT.md      # Detailed project report
 ```
 
----
+## 🧪 Testing
 
-## 🚀 Getting Started
+### Automated Smoke Tests
+Run the comprehensive smoke test suite:
 
-### **1. Clone the repository**
 ```bash
-git clone https://github.com/<your-username>/mindease.git
+./smoke-test.sh
 ```
 
-### **2. Install dependencies**
-Backend:
-```bash
-cd backend
-npm install
+This script tests:
+- ✅ Backend startup and MongoDB connection
+- ✅ API endpoint availability
+- ✅ Frontend build process
+- ✅ User authentication flow
+- ✅ Mood check-in functionality
+- ✅ Journal entry operations
+- ✅ AI chatbot integration
+
+### Manual Testing
+See `docs/SMOKE_TEST_README.md` for detailed manual testing procedures.
+
+## 📚 API Documentation
+
+### Authentication Endpoints
+
+#### Register User
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "securepassword",
+  "firstName": "John"
+}
 ```
 
-Frontend:
+#### Login
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "securepassword"
+}
+```
+
+### Mood Check-In Endpoints
+
+#### Create/Update Mood Check-In
+```http
+POST /api/mood
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "value": 75,
+  "label": "Feeling Good"
+}
+```
+
+#### Get Today's Mood
+```http
+GET /api/mood/today
+Authorization: Bearer <token>
+```
+
+### Journal Endpoints
+
+#### Create Journal Entry
+```http
+POST /api/journal
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "content": "Today I felt...",
+  "allowSerenityAccess": false
+}
+```
+
+#### Get All Journal Entries
+```http
+GET /api/journal
+Authorization: Bearer <token>
+```
+
+#### Update Journal Entry
+```http
+PUT /api/journal/:id
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "content": "Updated content..."
+}
+```
+
+### AI Chatbot Endpoints
+
+#### Send Message to Serenity
+```http
+POST /api/serenity/chat
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "message": "Hello, how are you?",
+  "history": [...],
+  "moodContext": "...",
+  "language": "en"
+}
+```
+
+## 🛠️ Development
+
+### Code Style
+- TypeScript strict mode enabled
+- ESLint for code quality
+- Consistent formatting with Prettier (recommended)
+
+### Key Development Practices
+- **Type Safety**: Full TypeScript coverage
+- **Error Handling**: Comprehensive error boundaries and try-catch blocks
+- **Security**: Password hashing, JWT tokens, rate limiting
+- **Performance**: Code splitting, lazy loading, optimized builds
+- **Accessibility**: Semantic HTML, ARIA labels where needed
+
+### Building for Production
+
+**Frontend:**
 ```bash
 cd frontend
-npm install
+npm run build
 ```
 
-### **3. Environment setup**
-
-Create a `.env` file in `/backend`:
-
-```
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_secret_key
-OPENAI_API_KEY=your_api_key
-```
-
-### **4. Run the backend**
+**Backend:**
 ```bash
-npm run dev
+cd backend
+npm run build
+npm start
 ```
 
-### **5. Run the frontend**
-```bash
-npm run dev
-```
+## 🌐 Deployment
 
----
+### Frontend (Vercel)
+1. Connect GitHub repository to Vercel
+2. Set environment variables in Vercel dashboard
+3. Deployments are automatic on push to main branch
 
-## 🧭 Development Roadmap
+### Backend (Render)
+1. Create new Web Service on Render
+2. Connect GitHub repository
+3. Set build command: `cd backend && npm install && npm run build`
+4. Set start command: `cd backend && npm start`
+5. Configure environment variables
 
-### **Sprint 1 — Authentication & Setup**  
-✔ Project initialization  
-✔ JWT authentication  
-✔ MongoDB setup  
-✔ Folder structure
+### Environment Variables for Production
 
-### **Sprint 2 — Serenity AI Chat**  
-□ AI endpoint  
-□ Structured prompt design  
-□ Safety filtering  
+**Backend (Render):**
+- `PORT`: 5050 (or Render-assigned port)
+- `MONGODB_URI`: MongoDB Atlas connection string
+- `JWT_SECRET`: Strong secret key
+- `FRONTEND_URL`: Production frontend URL
+- `OPENAI_API_KEY`: OpenAI API key
+- `AI_ENABLED`: true
+- `NODE_ENV`: production
 
-### **Sprint 3 — Mood Tracking**  
-□ Model + CRUD routes  
-□ UI components  
-□ Integration with Serenity  
+**Frontend (Vercel):**
+- `VITE_API_URL`: Production backend URL
+- `VITE_SENTRY_DSN`: Sentry DSN (optional)
 
-### **Sprint 4 — Journaling**  
-□ Journal model  
-□ CRUD routes  
-□ UI writing space  
+## 🔒 Security Features
 
-### **Sprint 5 — Mood Analytics**  
-□ Trend calculations  
-□ Data visualizations in UI  
+- **Password Hashing**: bcrypt with salt rounds
+- **JWT Authentication**: Stateless token-based auth
+- **Rate Limiting**: Prevents API abuse
+- **CORS Protection**: Configured for specific origins
+- **Input Validation**: Server-side validation for all inputs
+- **Error Sanitization**: No sensitive data in error messages
+- **Daily Limits**: AI usage limits to prevent abuse
 
-### **Sprint 6 — PWA Setup & Release**  
-□ PWA manifest  
-□ Offline caching  
-□ Install prompts  
-□ Final polish & deployment  
+## 📱 Progressive Web App
 
----
+MindEase is a fully functional PWA:
+- **Installable**: Add to home screen on mobile devices
+- **Offline Support**: Service worker for offline functionality
+- **App-like Experience**: Full-screen mode, custom icons
+- **Responsive**: Optimized for all screen sizes
 
-## 🌿 Contribution Workflow
+## 🌍 Internationalization
 
-MindEase follows a feature-branch workflow:
+Full i18n support for:
+- **English (en)**: Default language
+- **Portuguese - Portugal (pt)**: Complete translation
 
-1. Create a new branch  
-```bash
-git checkout -b feature/branch-name
-```
+Language switching is available throughout the application.
 
-2. Make changes and commit  
-```bash
-git add .
-git commit -m "feat: short description of what you added"
-```
+## 🤝 Contributing
 
-3. Push your branch  
-```bash
-git push origin feature/branch-name
-```
-
-4. Open a pull request (optional for bootcamp)  
-5. Merge into `main` when stable
-
----
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
-This project is for educational and portfolio purposes.
+
+This project is licensed under the ISC License.
+
+## 👤 Author
+
+**José Ferreira**
+
+- GitHub: [@yourusername](https://github.com/yourusername)
+- Project Link: [https://github.com/yourusername/mindease](https://github.com/yourusername/mindease)
+
+## 🙏 Acknowledgments
+
+- OpenAI for GPT API access
+- React and TypeScript communities
+- MongoDB for database solutions
+- Vercel and Render for hosting platforms
+- All open-source contributors whose libraries made this project possible
+
+## 📖 Additional Documentation
+
+- [Project Report](./PROJECT_REPORT.md) - Comprehensive project documentation
+- [Production Audit](./docs/PRODUCTION_AUDIT.md) - Production readiness checklist
+- [Code Review](./docs/CODE_REVIEW.md) - Code quality and best practices
+- [Smoke Test Guide](./docs/SMOKE_TEST_README.md) - Testing procedures
 
 ---
 
-## 💬 Contact
-For questions or feedback, please open an issue on the repository.
+**Built with ❤️ for emotional wellness**
