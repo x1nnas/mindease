@@ -56,6 +56,10 @@ export const protect = (req: AuthRequest, res: Response, next: NextFunction): vo
 /**
  * Optional auth middleware for routes that support both guests and signed-in users.
  * If a valid token exists, req.user is populated. If token is missing/invalid, request continues as guest.
+ *
+ * NOTE:
+ * This is intentionally kept for a future guest-mode rollout. The current chat route
+ * uses `protect`, so guest chat is still disabled for now.
  */
 export const optionalAuth = (
   req: AuthRequest,

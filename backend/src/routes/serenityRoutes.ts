@@ -6,8 +6,9 @@ import { protect } from "../middleware/auth";
 
 const router = express.Router();
 
-// Apply both rate limiting (per minute) and daily limit (per day)
-// Order matters: rate limit first (faster check), then daily limit
+// Keep chat login-only for the current release.
+// If guest mode is introduced later, switch `protect` to `optionalAuth`.
+// Middleware order: auth first, then minute-level limiter, then daily limiter.
 router.post("/chat", protect, serenityRateLimiter, dailyLimitMiddleware, serenityChat);
 
 export default router;
