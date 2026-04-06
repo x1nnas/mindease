@@ -1,6 +1,8 @@
 import OpenAI from "openai";
 import { SERENITY_SYSTEM_PROMPT } from "../prompts/serenityPrompt";
 import { getEnv } from "../../config/env";
+import AIMemory from "../../models/AIMemory";
+import mongoose from "mongoose";
 
 export interface SerenityMessage {
   role: "user" | "assistant" | "system";
@@ -21,6 +23,11 @@ export interface SerenityResponse {
 }
 
 let openaiClient: OpenAI | null = null;
+const RECENT_CHAT_WINDOW = 20;
+const MAX_MEMORY_ITEMS_IN_PROMPT = 12;
+const MAX_MEMORY_ITEMS_PER_USER = 60;
+const MEMORY_EXTRACTION_BATCH_LIMIT = 6;
+const MEMORY_EXTRACTION_HISTORY_LIMIT = 120;
 
 function getOpenAIClient(): OpenAI {
   if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY.trim() === '') {
@@ -35,6 +42,177 @@ function getOpenAIClient(): OpenAI {
   }
 
   return openaiClient;
+}
+
+function normalizeMemoryText(value: string): string {
+  return value.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+function isValidUserObjectId(userId?: string | null): userId is string {
+  return typeof userId === "string" && mongoose.Types.ObjectId.isValid(userId);
+}
+
+async function loadUserMemories(userId: string): Promise<string[]> {
+  const memoryDocs = await AIMemory.find({ userId, source: "conversation" })
+    .sort({ updatedAt: -1, createdAt: -1 })
+    .limit(MAX_MEMORY_ITEMS_IN_PROMPT)
+    .select("content -_id")
+    .lean();
+
+  return memoryDocs
+    .map((doc) => doc.content?.trim())
+    .filter((content): content is string => Boolean(content));
+}
+
+function buildMemoryContextSection(memories: string[]): string {
+  if (memories.length === 0) {
+    return "";
+  }
+
+  const bulletList = memories.map((memory) => `- ${memory}`).join("\n");
+  return `\n\nUSER MEMORY CONTEXT (PRIVATE TO THE AI):\n${bulletList}\n\nUse this memory context only to personalize tone, continuity, and helpful suggestions. Do not quote this section verbatim unless the user explicitly asks you what you remember.\n`;
+}
+
+function parseExtractedMemories(rawContent: string): string[] {
+  const trimmed = rawContent.trim();
+  if (!trimmed) return [];
+
+  const jsonMatch = trimmed.match(/\{[\s\S]*\}/);
+  const payload = jsonMatch ? jsonMatch[0] : trimmed;
+
+  try {
+    const parsed = JSON.parse(payload) as { memories?: unknown };
+    if (!Array.isArray(parsed.memories)) return [];
+
+    return parsed.memories
+      .filter((memory): memory is string => typeof memory === "string")
+      .map((memory) => memory.trim())
+      .filter((memory) => memory.length > 0);
+  } catch {
+    return [];
+  }
+}
+
+async function extractKeyMemoriesFromHistory(params: {
+  openai: OpenAI;
+  olderHistory: SerenityMessage[];
+  language: "en" | "pt";
+  existingMemories: string[];
+}): Promise<string[]> {
+  const { openai, olderHistory, language, existingMemories } = params;
+  const extractionHistory = olderHistory.slice(-MEMORY_EXTRACTION_HISTORY_LIMIT);
+  if (extractionHistory.length === 0) return [];
+
+  const transcript = extractionHistory
+    .map((entry, index) => `${index + 1}. ${entry.role.toUpperCase()}: ${entry.content}`)
+    .join("\n");
+
+  const existingContext = existingMemories.length > 0
+    ? existingMemories.map((memory) => `- ${memory}`).join("\n")
+    : "- (none)";
+
+  const extractorPrompt = `You are extracting long-term user memories from a supportive chat transcript.
+Return STRICT JSON only in this format: {"memories":["..."]}.
+
+Rules:
+- Output at most ${MEMORY_EXTRACTION_BATCH_LIMIT} memories.
+- Keep each memory under 160 characters.
+- Keep only durable, user-specific facts/preferences/patterns useful in future chats.
+- Ignore one-off details, greetings, and temporary logistics.
+- Do not include sensitive secrets (passwords, exact addresses, financial credentials).
+- Do not repeat existing memories.
+- Write memories in ${language === "pt" ? "Portuguese (Portugal)" : "English"}.
+`;
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    temperature: 0.2,
+    max_tokens: 220,
+    messages: [
+      { role: "system", content: extractorPrompt },
+      {
+        role: "user",
+        content: `Existing memories:\n${existingContext}\n\nTranscript to compress:\n${transcript}`,
+      },
+    ],
+  });
+
+  const raw = response.choices[0]?.message?.content ?? "";
+  return parseExtractedMemories(raw);
+}
+
+async function persistNewMemories(userId: string, candidateMemories: string[]): Promise<void> {
+  if (candidateMemories.length === 0) return;
+
+  const existingDocs = await AIMemory.find({ userId, source: "conversation" })
+    .select("content -_id")
+    .lean();
+  const existingSet = new Set(existingDocs.map((doc) => normalizeMemoryText(doc.content)));
+
+  const uniqueNew = candidateMemories
+    .map((memory) => memory.trim())
+    .filter((memory) => memory.length > 0)
+    .filter((memory) => {
+      const normalized = normalizeMemoryText(memory);
+      if (!normalized || existingSet.has(normalized)) {
+        return false;
+      }
+      existingSet.add(normalized);
+      return true;
+    });
+
+  if (uniqueNew.length === 0) return;
+
+  await AIMemory.insertMany(
+    uniqueNew.map((content) => ({
+      userId,
+      content,
+      source: "conversation" as const,
+    }))
+  );
+
+  const totalCount = await AIMemory.countDocuments({ userId, source: "conversation" });
+  if (totalCount <= MAX_MEMORY_ITEMS_PER_USER) return;
+
+  const overflow = totalCount - MAX_MEMORY_ITEMS_PER_USER;
+  const oldEntries = await AIMemory.find({ userId, source: "conversation" })
+    .sort({ createdAt: 1 })
+    .limit(overflow)
+    .select("_id")
+    .lean();
+
+  if (oldEntries.length > 0) {
+    await AIMemory.deleteMany({ _id: { $in: oldEntries.map((entry) => entry._id) } });
+  }
+}
+
+async function compactOlderHistoryIntoMemories(params: {
+  userId: string | null | undefined;
+  isGuest: boolean;
+  aiEnabled: boolean;
+  hasApiKey: boolean;
+  openai: OpenAI;
+  olderHistory: SerenityMessage[];
+  language: "en" | "pt";
+  existingMemories: string[];
+}): Promise<void> {
+  const { userId, isGuest, aiEnabled, hasApiKey, openai, olderHistory, language, existingMemories } = params;
+
+  if (isGuest || !aiEnabled || !hasApiKey) return;
+  if (!isValidUserObjectId(userId)) return;
+  if (olderHistory.length === 0) return;
+
+  try {
+    const extracted = await extractKeyMemoriesFromHistory({
+      openai,
+      olderHistory,
+      language,
+      existingMemories,
+    });
+    await persistNewMemories(userId, extracted);
+  } catch (error) {
+    console.error("AI memory compaction failed:", error);
+  }
 }
 
 // Mock responses for development when AI is disabled
@@ -125,6 +303,21 @@ export async function getSerenityReply({
   console.log("🤖 AI Chatbot: Using real OpenAI API");
 
   const openai = getOpenAIClient();
+  const env = getEnv();
+
+  const sanitizedHistory = history
+    .filter((entry) => entry && typeof entry.content === "string" && entry.content.trim().length > 0)
+    .map((entry) => ({
+      role: entry.role,
+      content: entry.content.trim(),
+    }));
+  const recentHistory = sanitizedHistory.slice(-RECENT_CHAT_WINDOW);
+  const olderHistory = sanitizedHistory.slice(0, Math.max(0, sanitizedHistory.length - RECENT_CHAT_WINDOW));
+
+  const persistedMemories =
+    !isGuest && isValidUserObjectId(userId)
+      ? await loadUserMemories(userId)
+      : [];
 
   // STEP 1: Build guest user prefix (if applicable)
   const systemPrefixForGuest = isGuest
@@ -142,21 +335,26 @@ export async function getSerenityReply({
   const moodContextSection = moodContext
     ? `\n\nUSER MOOD CONTEXT:\n${moodContext}\n\nUse this context to understand the user's current emotional state. You can reference it naturally in your responses, but don't force it. If the user's message doesn't relate to their mood, focus on what they're saying now.\n`
     : "";
+  const memoryContextSection = buildMemoryContextSection(persistedMemories);
 
   // STEP 4: Combine all system prompt parts
   // The order is: guest notice → base prompt → language instruction → mood context
-  const fullSystemPrompt = systemPrefixForGuest + SERENITY_SYSTEM_PROMPT + languageInstruction + moodContextSection;
+  const fullSystemPrompt =
+    systemPrefixForGuest +
+    SERENITY_SYSTEM_PROMPT +
+    languageInstruction +
+    moodContextSection +
+    memoryContextSection;
 
   const systemMessage: SerenityMessage = {
     role: "system",
     content: fullSystemPrompt,
   };
 
-  // Limit conversation history to prevent token overflow and control costs
-  // Only keep the most recent N messages (default: 10)
-  const env = getEnv();
-  const maxHistoryMessages = env.AI_MAX_HISTORY_MESSAGES;
-  const limitedHistory = history.slice(-maxHistoryMessages);
+  // Keep a short recency window for response quality and cost efficiency.
+  // Older content is compacted into persistent memory records.
+  const maxHistoryMessages = Math.min(env.AI_MAX_HISTORY_MESSAGES, RECENT_CHAT_WINDOW);
+  const limitedHistory = recentHistory.slice(-maxHistoryMessages);
 
   const conversation: SerenityMessage[] = [
     systemMessage,
@@ -177,17 +375,28 @@ export async function getSerenityReply({
   const fallbackMessage = "I'm having trouble responding right now. Let's try again in a moment.";
 
   try {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: conversation,
-    user: userIdentifier,
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: conversation,
+      user: userIdentifier,
       max_tokens: maxTokens, // Limit output tokens to control costs
-  });
+    });
 
-  const reply =
+    const reply =
       response.choices[0]?.message?.content?.trim() ?? fallbackMessage;
 
-  return { reply };
+    void compactOlderHistoryIntoMemories({
+      userId,
+      isGuest,
+      aiEnabled,
+      hasApiKey,
+      openai,
+      olderHistory,
+      language,
+      existingMemories: persistedMemories,
+    });
+
+    return { reply };
   } catch (error) {
     // Log error for debugging (but don't expose technical details to user)
     console.error("OpenAI API error:", error);

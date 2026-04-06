@@ -52,3 +52,41 @@ export const protect = (req: AuthRequest, res: Response, next: NextFunction): vo
     });
   }
 };
+
+/**
+ * Optional auth middleware for routes that support both guests and signed-in users.
+ * If a valid token exists, req.user is populated. If token is missing/invalid, request continues as guest.
+ *
+ * NOTE:
+ * This is intentionally kept for a future guest-mode rollout. The current chat route
+ * uses `protect`, so guest chat is still disabled for now.
+ */
+export const optionalAuth = (
+  req: AuthRequest,
+  _res: Response,
+  next: NextFunction
+): void => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    next();
+    return;
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  if (!process.env.JWT_SECRET) {
+    next();
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+  } catch (error) {
+    // Ignore invalid tokens for optional auth routes and continue as guest.
+    console.warn("Optional auth token ignored:", error instanceof Error ? error.message : error);
+  }
+
+  next();
+};
